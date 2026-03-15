@@ -1,0 +1,53 @@
+name: summer_camp
+description: "Summer Camp QR Registration & Entry Management System"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Supabase
+  supabase_flutter: ^2.8.0
+
+  # QR Code Generation
+  qr_flutter: ^4.1.0
+
+  # QR Code Scanning
+  mobile_scanner: ^6.0.3
+
+  # State Management
+  provider: ^6.1.2
+
+  # Google Fonts
+  google_fonts: ^6.2.1
+
+  # URL Launcher / Share
+  share_plus: ^10.1.4
+
+  # Image Download
+  path_provider: ^2.1.5
+
+  # UUID
+  uuid: ^4.5.1
+
+  # Screenshots / Capture
+  screenshot: ^3.0.0
+  device_preview: ^1.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/banner.png
+    - assets/images/banner2.png

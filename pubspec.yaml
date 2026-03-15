@@ -52,9 +52,10 @@ flutter:
   assets:
     - assets/images/banner.png
     - assets/images/banner2.png
+    - assets/images/icon.png
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/banner2.png"
+  image_path: "assets/images/icon.png"
   min_sdk_android: 24

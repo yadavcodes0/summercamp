@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/providers/admin_provider.dart';
-import 'package:summer_camp/screens/qr_scanner_screen.dart';
+import 'package:summer_camp/screens/admin_dashboard_screen.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -38,7 +38,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     if (success) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const QrScannerScreen()),
+        MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

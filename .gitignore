@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase & Signing (sensitive)
+android/app/google-services.json
+android/key.properties
+lib/firebase_options.dart

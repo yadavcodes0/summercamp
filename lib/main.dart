@@ -31,11 +31,51 @@ void main() async {
     debugPrint('Firebase Init Error: $e');
   }
 
-  runApp(const SummerCampApp());
+  final uriBaseString = Uri.base.toString();
+  debugPrint('====== URL AT STARTUP ======');
+  debugPrint('Uri.base: $uriBaseString');
+  final isAdmin = uriBaseString.contains('admin');
+  debugPrint('isAdmin: $isAdmin');
+  
+  runApp(isAdmin ? const AdminPanelApp() : const MobileApp());
 }
 
-class SummerCampApp extends StatelessWidget {
-  const SummerCampApp({super.key});
+// ═══════════════════════════════════════════════════════════════
+// ADMIN PANEL — Full-width web dashboard (accessed via /#/admin)
+// ═══════════════════════════════════════════════════════════════
+class AdminPanelApp extends StatelessWidget {
+  const AdminPanelApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ChildProvider()),
+        ChangeNotifierProvider(create: (_) => AdminDashboardProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Summer Camp Admin',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFf97b06),
+            brightness: Brightness.light,
+          ),
+          textTheme: GoogleFonts.interTextTheme(),
+          scaffoldBackgroundColor: const Color(0xFFF5F5FA),
+        ),
+        home: const AdminLayout(),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE APP — Constrained to 500px (normal app for parents/volunteers)
+// ═══════════════════════════════════════════════════════════════
+class MobileApp extends StatelessWidget {
+  const MobileApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +83,6 @@ class SummerCampApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ChildProvider()),
         ChangeNotifierProvider(create: (_) => VolunteerProvider()),
-        ChangeNotifierProvider(create: (_) => AdminDashboardProvider()),
       ],
       child: MaterialApp(
         title: 'Summer Camp 2026',
@@ -109,18 +148,7 @@ class SummerCampApp extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        routes: {
-          '/admin': (context) => const AdminLayout(),
-        },
         builder: (context, child) {
-          // Check if the current URL is the admin route
-          final uri = Uri.base;
-          final isAdmin = uri.fragment.contains('admin');
-
-          // Admin dashboard gets full width
-          if (isAdmin) return child!;
-
-          // Mobile app gets constrained to 500px
           return Container(
             color: const Color(0xFFE0D5CC),
             child: Center(

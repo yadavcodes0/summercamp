@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:summer_camp/providers/child_provider.dart';
-import 'package:summer_camp/screens/registration_success_screen.dart';
+import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/services/auth_service.dart';
 
-class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({super.key});
+class VolunteerSignupScreen extends StatefulWidget {
+  const VolunteerSignupScreen({super.key});
 
   @override
-  State<RegistrationScreen> createState() => _RegistrationScreenState();
+  State<VolunteerSignupScreen> createState() => _VolunteerSignupScreenState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _childNameCtrl = TextEditingController();
+  final _fullNameCtrl = TextEditingController();
   final _ageCtrl = TextEditingController();
-  final _parentNameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
   final _otpCtrl = TextEditingController();
@@ -36,16 +35,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   void dispose() {
-    _childNameCtrl.dispose();
+    _fullNameCtrl.dispose();
     _ageCtrl.dispose();
-    _parentNameCtrl.dispose();
+    _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
     _otpCtrl.dispose();
     super.dispose();
   }
 
-  /// Auto-verify when 6 digits entered
   void _onOtpChanged() {
     if (_otpCtrl.text.trim().length == 6 && !_isPhoneVerified) {
       _verifyOtp();
@@ -58,6 +56,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Future<void> _sendOtp() async {
+    // 1. Validate other fields first
+    if (!_formKey.currentState!.validate()) return;
+    
     if (!_isPhoneValid()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -114,14 +115,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
 
       if (!mounted) return;
+      
       setState(() => _isPhoneVerified = true);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Phone number verified! ✅'),
-          backgroundColor: Color(0xFF43A047),
-        ),
-      );
+      
+      // Auto-submit form since everything is ready and verified
+      _submit();
+      
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -134,23 +133,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_isPhoneVerified) return;
 
-    if (!_isPhoneVerified) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please verify your phone number first'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    final provider = context.read<ChildProvider>();
-    final success = await provider.registerChild(
-      childName: _childNameCtrl.text.trim(),
+    final provider = context.read<VolunteerProvider>();
+    final success = await provider.registerVolunteer(
+      fullName: _fullNameCtrl.text.trim(),
       age: int.parse(_ageCtrl.text.trim()),
-      parentName: _parentNameCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
       phone: _phoneCtrl.text.trim(),
       address: _addressCtrl.text.trim(),
     );
@@ -158,12 +147,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const RegistrationSuccessScreen(),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registration successful! You can now log in.'),
+          backgroundColor: Color(0xFF43A047),
         ),
       );
+      Navigator.pop(context); // Go back to login screen
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -176,12 +166,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading =
-        context.watch<ChildProvider>().state == ChildProviderState.loading;
+    final isLoading = context.watch<VolunteerProvider>().isLoading;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register Child'),
+        title: const Text('Volunteer Signup'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: () => Navigator.pop(context),
@@ -198,16 +187,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFf97b06).withOpacity(0.08),
+                  color: const Color(0xFF43A047).withOpacity(0.08),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   children: [
-                    const Text('📝', style: TextStyle(fontSize: 28)),
+                    const Text('🤝', style: TextStyle(fontSize: 28)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Fill in your child\'s details to get a unique QR code for camp entry.',
+                        'Join our team! Fill in your details to register as a camp volunteer. Note that password will be generated automatically.',
                         style: GoogleFonts.splineSans(
                           fontSize: 13,
                           color: const Color(0xFF555555),
@@ -221,12 +210,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
               const SizedBox(height: 28),
 
-              _SectionLabel('Child Information'),
+              _SectionLabel('Personal Information'),
               const SizedBox(height: 12),
 
               _AppTextField(
-                controller: _childNameCtrl,
-                label: 'Child\'s Full Name',
+                controller: _fullNameCtrl,
+                label: 'Full Name',
                 hint: 'e.g. Rahul Sharma',
                 icon: Icons.person_outline,
                 validator: (v) =>
@@ -234,35 +223,60 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: 14),
 
-              _AppTextField(
-                controller: _ageCtrl,
-                label: 'Age',
-                hint: 'e.g. 10',
-                icon: Icons.cake_outlined,
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Required';
-                  final n = int.tryParse(v.trim());
-                  if (n == null || n < 1 || n > 18) {
-                    return 'Enter a valid age (1–18)';
-                  }
-                  return null;
-                },
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: _AppTextField(
+                      controller: _ageCtrl,
+                      label: 'Age',
+                      hint: 'e.g. 25',
+                      icon: Icons.cake_outlined,
+                      keyboardType: TextInputType.number,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Required';
+                        final n = int.tryParse(v.trim());
+                        if (n == null || n < 16) {
+                          return 'Must be 16+';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    flex: 2,
+                    child: _AppTextField(
+                      controller: _emailCtrl,
+                      label: 'Email',
+                      hint: 'e.g. rahul@email.com',
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Required';
+                        if (!v.contains('@')) return 'Invalid email';
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 24),
-              _SectionLabel('Parent / Guardian'),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
 
               _AppTextField(
-                controller: _parentNameCtrl,
-                label: 'Parent\'s Name',
-                hint: 'e.g. Amit Kumar',
-                icon: Icons.supervisor_account_outlined,
+                controller: _addressCtrl,
+                label: 'Residential Address',
+                hint: 'e.g. Block A, Rohini, Delhi',
+                icon: Icons.location_on_outlined,
+                maxLines: 2,
                 validator: (v) =>
                     v == null || v.trim().isEmpty ? 'Required' : null,
               ),
-              const SizedBox(height: 14),
+
+              const SizedBox(height: 24),
+              _SectionLabel('Phone Verification'),
+              const SizedBox(height: 12),
 
               // ── Phone Number with Verify Button ──
               Row(
@@ -277,7 +291,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         labelText: 'Phone Number',
                         hintText: 'e.g. 9876543210',
                         prefixIcon: const Icon(Icons.phone_outlined,
-                            color: Color(0xFFf97b06), size: 20),
+                            color: Color(0xFF43A047), size: 20),
                         suffixIcon: _isPhoneVerified
                             ? const Icon(Icons.check_circle,
                                 color: Color(0xFF43A047), size: 24)
@@ -291,7 +305,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         return null;
                       },
                       onChanged: (_) {
-                        // Reset OTP state if phone number changes
                         if (_isOtpSent || _isPhoneVerified) {
                           setState(() {
                             _isOtpSent = false;
@@ -335,6 +348,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
+                                backgroundColor: const Color(0xFF43A047),
                               ),
                               child: _isSendingOtp
                                   ? const SizedBox(
@@ -367,32 +381,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     hintText: '123456',
                     counterText: '',
                     prefixIcon: const Icon(Icons.lock_outline,
-                        color: Color(0xFFf97b06), size: 20),
+                        color: Color(0xFF43A047), size: 20),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          const BorderSide(color: Color(0xFFf97b06), width: 2),
+                          const BorderSide(color: Color(0xFF43A047), width: 2),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          const BorderSide(color: Color(0xFFf97b06), width: 2),
+                          const BorderSide(color: Color(0xFF43A047), width: 2),
                     ),
                   ),
                 ),
               ],
-
-              const SizedBox(height: 14),
-
-              _AppTextField(
-                controller: _addressCtrl,
-                label: 'Address',
-                hint: 'e.g. Delhi',
-                icon: Icons.location_on_outlined,
-                maxLines: 2,
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
 
               const SizedBox(height: 32),
 
@@ -400,7 +402,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 onPressed: (isLoading || !_isPhoneVerified) ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isPhoneVerified
-                      ? const Color(0xFFf97b06)
+                      ? const Color(0xFF43A047)
                       : Colors.grey.shade400,
                 ),
                 child: isLoading
@@ -412,14 +414,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           strokeWidth: 2.5,
                         ),
                       )
-                    : const Text('Register Child'),
+                    : const Text('Sign Up'),
               ),
 
               if (!_isPhoneVerified)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    'Verify your phone number to enable registration',
+                    'Verify your phone number first',
                     style: GoogleFonts.splineSans(
                       fontSize: 12,
                       color: const Color(0xFF888888),
@@ -483,7 +485,7 @@ class _AppTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(icon, color: const Color(0xFFf97b06), size: 20),
+        prefixIcon: Icon(icon, color: const Color(0xFF43A047), size: 20),
       ),
     );
   }

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
-import 'package:summer_camp/providers/admin_provider.dart';
+import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/screens/child_verification_screen.dart';
 import 'package:summer_camp/screens/home_screen.dart';
 
@@ -17,6 +17,7 @@ class QrScannerScreen extends StatefulWidget {
 class _QrScannerScreenState extends State<QrScannerScreen> {
   final MobileScannerController _scanController = MobileScannerController();
   bool _isProcessing = false;
+  bool _isNavigatedAway = false;
 
   @override
   void dispose() {
@@ -25,7 +26,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
   }
 
   Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_isProcessing) return;
+    if (_isProcessing || _isNavigatedAway) return;
     final barcode = capture.barcodes.firstOrNull;
     if (barcode?.rawValue == null) return;
 
@@ -37,18 +38,23 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
 
     if (!mounted) return;
 
-    setState(() => _isProcessing = false);
-
     if (found && provider.scannedChild != null) {
-      await _scanController.stop();
       if (!mounted) return;
+      setState(() {
+        _isProcessing = false;
+        _isNavigatedAway = true;
+      });
       await Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const ChildVerificationScreen()),
       );
-      // Resume scanning after returning
-      await _scanController.start();
+      // Remount scanner after returning from Success/Verification, with a slight delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        setState(() => _isNavigatedAway = false);
+      }
     } else {
+      setState(() => _isProcessing = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('❌ Child not found. Invalid QR code.'),
@@ -77,7 +83,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
-              await context.read<AdminProvider>().logout();
+              await context.read<VolunteerProvider>().logout();
               if (!mounted) return;
               Navigator.pushAndRemoveUntil(
                 context,
@@ -90,10 +96,10 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
       ),
       body: Stack(
         children: [
-          MobileScanner(
-            controller: _scanController,
-            onDetect: _onDetect,
-          ),
+          if (!_isNavigatedAway)
+            MobileScanner(controller: _scanController, onDetect: _onDetect)
+          else
+            Container(color: Colors.black),
 
           // Overlay
           Center(
@@ -127,8 +133,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
               child: Column(
                 children: [
                   if (_isProcessing)
-                    const CircularProgressIndicator(
-                        color: Color(0xFFf97b06))
+                    const CircularProgressIndicator(color: Color(0xFFf97b06))
                   else
                     Text(
                       'Align the QR code within the frame',

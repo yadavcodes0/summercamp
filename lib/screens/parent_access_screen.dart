@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:summer_camp/screens/otp_verification_screen.dart';
-import 'package:summer_camp/services/auth_service.dart';
+import 'package:provider/provider.dart';
+import 'package:summer_camp/providers/child_provider.dart';
+import 'package:summer_camp/screens/children_list_screen.dart';
 
 class ParentAccessScreen extends StatefulWidget {
   const ParentAccessScreen({super.key});
@@ -13,7 +14,6 @@ class ParentAccessScreen extends StatefulWidget {
 class _ParentAccessScreenState extends State<ParentAccessScreen> {
   final _phoneCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isSendingOtp = false;
 
   @override
   void dispose() {
@@ -23,50 +23,40 @@ class _ParentAccessScreenState extends State<ParentAccessScreen> {
 
   Future<void> _find() async {
     if (!_formKey.currentState!.validate()) return;
-    
-    final phoneNum = _phoneCtrl.text.trim();
-    final fullPhone = phoneNum.startsWith('+') ? phoneNum : '+91$phoneNum';
-    
-    setState(() => _isSendingOtp = true);
-    debugPrint('📱 OTP: Starting verification for $fullPhone');
-    
-    final authService = AuthService();
-    await authService.sendOTP(
-      phoneNumber: fullPhone,
-      onCodeSent: (verificationId) {
-        debugPrint('✅ OTP: Code sent successfully!');
-        if (!mounted) return;
-        setState(() => _isSendingOtp = false);
-        
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => OtpVerificationScreen(
-              verificationId: verificationId,
-              phoneNumber: fullPhone,
-              authService: authService,
-            ),
-          ),
-        );
-      },
-      onError: (errorMessage) {
-        debugPrint('❌ OTP: Error: $errorMessage');
-        if (!mounted) return;
-        setState(() => _isSendingOtp = false);
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('OTP Error: $errorMessage'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 6),
-          ),
-        );
-      },
-    );
+
+    final provider = context.read<ChildProvider>();
+    final success =
+        await provider.fetchChildrenByPhone(_phoneCtrl.text.trim());
+
+    if (!mounted) return;
+
+    if (success && provider.childrenList.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ChildrenListScreen()),
+      );
+    } else if (success && provider.childrenList.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('No registrations found for this phone number.'),
+          backgroundColor: Color(0xFF555555),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.error ?? 'Something went wrong'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading =
+        context.watch<ChildProvider>().state == ChildProviderState.loading;
 
     return Scaffold(
       appBar: AppBar(
@@ -140,8 +130,8 @@ class _ParentAccessScreenState extends State<ParentAccessScreen> {
               const SizedBox(height: 28),
 
               ElevatedButton(
-                onPressed: _isSendingOtp ? null : _find,
-                child: _isSendingOtp
+                onPressed: isLoading ? null : _find,
+                child: isLoading
                     ? const SizedBox(
                         height: 22,
                         width: 22,
@@ -150,7 +140,7 @@ class _ParentAccessScreenState extends State<ParentAccessScreen> {
                           strokeWidth: 2.5,
                         ),
                       )
-                    : const Text('Send OTP'),
+                    : const Text('Find My Child\'s QR'),
               ),
             ],
           ),

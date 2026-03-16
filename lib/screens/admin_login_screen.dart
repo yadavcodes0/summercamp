@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:summer_camp/providers/admin_provider.dart';
+import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/screens/admin_dashboard_screen.dart';
+import 'package:summer_camp/screens/volunteer_signup_screen.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -13,13 +14,13 @@ class AdminLoginScreen extends StatefulWidget {
 
 class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
+    _phoneCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
@@ -27,9 +28,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final provider = context.read<AdminProvider>();
+    final provider = context.read<VolunteerProvider>();
     final success = await provider.login(
-      _emailCtrl.text.trim(),
+      _phoneCtrl.text.trim(),
       _passwordCtrl.text.trim(),
     );
 
@@ -52,17 +53,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = context.watch<AdminProvider>().isLoading;
+    final isLoading = context.watch<VolunteerProvider>().isLoading;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Login'),
+        title: const Text('Volunteer Login'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Form(
           key: _formKey,
@@ -85,7 +86,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               const SizedBox(height: 24),
 
               Text(
-                'Staff Login',
+                'Volunteer Login',
                 style: GoogleFonts.splineSans(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -95,7 +96,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This area is restricted to authorised camp staff only.',
+                'This area is restricted to authorised camp volunteers only.',
                 style: GoogleFonts.splineSans(
                   fontSize: 13,
                   color: const Color(0xFF888888),
@@ -106,16 +107,19 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               const SizedBox(height: 36),
 
               TextFormField(
-                controller: _emailCtrl,
-                keyboardType: TextInputType.emailAddress,
+                controller: _phoneCtrl,
+                keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'admin@camp.com',
-                  prefixIcon: Icon(Icons.email_outlined,
+                  labelText: 'Phone Number',
+                  hintText: 'e.g. 9876543210',
+                  prefixIcon: Icon(Icons.phone_outlined,
                       color: Color(0xFF43A047)),
                 ),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Required';
+                  if (v.trim().length < 10) return 'Invalid phone number';
+                  return null;
+                },
               ),
               const SizedBox(height: 14),
 
@@ -123,7 +127,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 controller: _passwordCtrl,
                 obscureText: _obscurePassword,
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Camp Password',
                   hintText: '••••••••',
                   prefixIcon: const Icon(Icons.lock_outline,
                       color: Color(0xFF43A047)),
@@ -159,6 +163,39 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         ),
                       )
                     : const Text('Login'),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const VolunteerSignupScreen(),
+                      ),
+                    );
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: "Don't have an account? ",
+                      style: GoogleFonts.splineSans(
+                        color: const Color(0xFF888888),
+                        fontSize: 14,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'Sign up as volunteer',
+                          style: GoogleFonts.splineSans(
+                            color: const Color(0xFF43A047),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

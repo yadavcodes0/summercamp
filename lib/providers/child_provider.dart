@@ -92,10 +92,13 @@ class ChildProvider extends ChangeNotifier {
 
   Future<bool> markEntry(String campId) async {
     try {
+      debugPrint('Attempting to mark entry for campId: $campId');
       _scannedChild = await _service.markEntry(campId);
+      debugPrint('Mark entry success: ${_scannedChild?.childId}');
       notifyListeners();
       return true;
     } catch (e) {
+      debugPrint('Error marking entry: $e');
       _error = e.toString();
       notifyListeners();
       return false;

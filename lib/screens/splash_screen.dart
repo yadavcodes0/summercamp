@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:summer_camp/providers/volunteer_provider.dart';
+import 'package:summer_camp/screens/admin_dashboard_screen.dart';
 import 'package:summer_camp/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -30,16 +33,31 @@ class _SplashScreenState extends State<SplashScreen>
     );
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
+    final provider = context.read<VolunteerProvider>();
+    Future.wait([
+      Future.delayed(const Duration(seconds: 3)),
+      provider.initializationDone,
+    ]).then((_) {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const HomeScreen(),
-            transitionDuration: const Duration(milliseconds: 600),
-            transitionsBuilder: (_, animation, __, child) =>
-                FadeTransition(opacity: animation, child: child),
-          ),
-        );
+        if (provider.isLoggedIn) {
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const AdminDashboardScreen(),
+              transitionDuration: const Duration(milliseconds: 600),
+              transitionsBuilder: (_, animation, __, child) =>
+                  FadeTransition(opacity: animation, child: child),
+            ),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const HomeScreen(),
+              transitionDuration: const Duration(milliseconds: 600),
+              transitionsBuilder: (_, animation, __, child) =>
+                  FadeTransition(opacity: animation, child: child),
+            ),
+          );
+        }
       }
     });
   }

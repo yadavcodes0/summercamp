@@ -161,6 +161,13 @@ class ChildVerificationScreen extends StatelessWidget {
                         builder: (_) => const EntrySuccessScreen(),
                       ),
                     );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed: ${provider.error}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
                 },
                 icon: const Icon(Icons.check_circle_outline),

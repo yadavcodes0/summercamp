@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:summer_camp/providers/admin_provider.dart';
+import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/screens/admin_dashboard_screen.dart';
 import 'package:summer_camp/screens/admin_login_screen.dart';
 import 'package:summer_camp/screens/parent_access_screen.dart';
@@ -26,15 +26,13 @@ class HomeScreen extends StatelessWidget {
                     // Header
                     Row(
                       children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFf97b06).withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Center(
-                            child: Text('⛺', style: TextStyle(fontSize: 26)),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.asset(
+                            'assets/images/icon.png',
+                            width: 52,
+                            height: 52,
+                            fit: BoxFit.cover,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -110,7 +108,9 @@ class HomeScreen extends StatelessWidget {
                       color: const Color(0xFFf97b06),
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const RegistrationScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const RegistrationScreen(),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -122,18 +122,22 @@ class HomeScreen extends StatelessWidget {
                       color: const Color(0xFF5C6BC0),
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ParentAccessScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const ParentAccessScreen(),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
 
                     _ActionCard(
                       icon: '🔐',
-                      title: 'Admin Login',
+                      title: 'Volunteer Login',
                       subtitle: 'For camp staff only',
                       color: const Color(0xFF43A047),
                       onTap: () {
-                        final isAdminLoggedIn = context.read<AdminProvider>().isLoggedIn;
+                        final isAdminLoggedIn = context
+                            .read<VolunteerProvider>()
+                            .isLoggedIn;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -152,7 +156,7 @@ class HomeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 10, top: 6),
               child: Text(
-                'v1.0.0',
+                'v1.0.1',
                 style: GoogleFonts.splineSans(
                   fontSize: 12,
                   color: const Color(0xFFBBBBBB),

@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/config/supabase_config.dart';
 import 'package:summer_camp/firebase_options.dart';
-import 'package:summer_camp/providers/admin_provider.dart';
+import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
 import 'package:summer_camp/screens/splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -40,7 +40,7 @@ class SummerCampApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ChildProvider()),
-        ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => VolunteerProvider()),
       ],
       child: MaterialApp(
         title: 'Summer Camp 2026',

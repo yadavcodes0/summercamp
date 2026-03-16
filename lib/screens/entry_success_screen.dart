@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
-import 'package:summer_camp/screens/qr_scanner_screen.dart';
 
 class EntrySuccessScreen extends StatefulWidget {
   const EntrySuccessScreen({super.key});
@@ -128,10 +127,7 @@ class _EntrySuccessScreenState extends State<EntrySuccessScreen>
               ElevatedButton.icon(
                 onPressed: () {
                   context.read<ChildProvider>().reset();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const QrScannerScreen()),
-                  );
+                  Navigator.pop(context);
                 },
                 icon: const Icon(Icons.qr_code_scanner),
                 style: ElevatedButton.styleFrom(

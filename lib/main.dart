@@ -1,7 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/config/supabase_config.dart';
+import 'package:summer_camp/firebase_options.dart';
 import 'package:summer_camp/providers/admin_provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
 import 'package:summer_camp/screens/splash_screen.dart';
@@ -10,12 +12,24 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: SupabaseConfig.url,
-    anonKey: SupabaseConfig.anonKey,
-  );
+  try {
+    await Supabase.initialize(
+      url: SupabaseConfig.url,
+      anonKey: SupabaseConfig.anonKey,
+    );
+  } catch (e) {
+    debugPrint('Supabase Init Error: $e');
+  }
 
-  runApp(SummerCampApp());
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase Init Error: $e');
+  }
+
+  runApp(const SummerCampApp());
 }
 
 class SummerCampApp extends StatelessWidget {
@@ -94,9 +108,7 @@ class SummerCampApp extends StatelessWidget {
         ),
         builder: (context, child) {
           return Container(
-            color: const Color(
-              0xFFE0D5CC,
-            ),
+            color: const Color(0xFFE0D5CC),
             child: Center(
               child: ClipRect(
                 child: ConstrainedBox(

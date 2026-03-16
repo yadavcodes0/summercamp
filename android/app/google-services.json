@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1054541492119",
+    "project_id": "summercamp-5e77b",
+    "storage_bucket": "summercamp-5e77b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054541492119:android:ac5b9a4f4897e50bddded2",
+        "android_client_info": {
+          "package_name": "com.thisisyadav.summer_camp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1054541492119-mijk24v5tupv9voj9ta2qe5b0qddrklj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thisisyadav.summer_camp",
+            "certificate_hash": "2cd780473b14d7232635276a9c3c99279dd8e224"
+          }
+        },
+        {
+          "client_id": "1054541492119-p93f5cgjre33h8q35vnn4b3f89rqfoe3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thisisyadav.summer_camp",
+            "certificate_hash": "dca804a916199c8334ac79d8047a698ffe9fd7bd"
+          }
+        },
+        {
+          "client_id": "1054541492119-2hg1i658ip6rhe751d0geok78kj4u1fh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiu3Y_dRoEtfgDeUjCSXauGG3wGHi2Ncs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1054541492119-2hg1i658ip6rhe751d0geok78kj4u1fh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

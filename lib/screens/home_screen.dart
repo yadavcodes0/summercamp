@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:summer_camp/providers/admin_provider.dart';
+import 'package:summer_camp/screens/admin_dashboard_screen.dart';
 import 'package:summer_camp/screens/admin_login_screen.dart';
 import 'package:summer_camp/screens/parent_access_screen.dart';
 import 'package:summer_camp/screens/registration_screen.dart';
@@ -129,10 +132,17 @@ class HomeScreen extends StatelessWidget {
                       title: 'Admin Login',
                       subtitle: 'For camp staff only',
                       color: const Color(0xFF43A047),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
-                      ),
+                      onTap: () {
+                        final isAdminLoggedIn = context.read<AdminProvider>().isLoggedIn;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => isAdminLoggedIn
+                                ? const AdminDashboardScreen()
+                                : const AdminLoginScreen(),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
                   ],

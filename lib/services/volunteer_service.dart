@@ -25,6 +25,7 @@ class VolunteerService {
     required String email,
     required String phone,
     required String address,
+    required String gender,
   }) async {
     try {
       // 1. Check if phone is already registered
@@ -45,6 +46,7 @@ class VolunteerService {
         'email_address': email,
         'phone_number': phone,
         'address': address,
+        'gender': gender,
       });
       return true;
     } catch (e) {

@@ -114,6 +114,12 @@ class ChildVerificationScreen extends StatelessWidget {
                   ),
                   const Divider(height: 20),
                   _InfoTile(
+                    icon: child.gender == 'Female' ? '👧' : '👦',
+                    label: 'Gender',
+                    value: child.gender ?? 'Not specified',
+                  ),
+                  const Divider(height: 20),
+                  _InfoTile(
                     icon: '👨‍👩‍👦',
                     label: 'Parent',
                     value: child.parentName,

@@ -21,6 +21,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _addressCtrl = TextEditingController();
   final _otpCtrl = TextEditingController();
 
+  // New field
+  String _gender = 'Male';
+
   // OTP State
   bool _isSendingOtp = false;
   bool _isOtpSent = false;
@@ -153,6 +156,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       parentName: _parentNameCtrl.text.trim(),
       phone: _phoneCtrl.text.trim(),
       address: _addressCtrl.text.trim(),
+      gender: _gender,
     );
 
     if (!mounted) return;
@@ -248,6 +252,39 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 18),
+
+              _SectionLabel('Gender'),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(
+                      value: 'Male',
+                      label: Text('Male'),
+                      icon: Icon(Icons.male),
+                    ),
+                    ButtonSegment(
+                      value: 'Female',
+                      label: Text('Female'),
+                      icon: Icon(Icons.female),
+                    ),
+                  ],
+                  selected: {_gender},
+                  onSelectionChanged: (newSelection) {
+                    setState(() {
+                      _gender = newSelection.first;
+                    });
+                  },
+                  showSelectedIcon: false,
+                  style: SegmentedButton.styleFrom(
+                    selectedBackgroundColor: const Color(0xFFf97b06),
+                    selectedForegroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFEEE6DF)),
+                  ),
+                ),
               ),
 
               const SizedBox(height: 24),

@@ -28,6 +28,7 @@ class ChildProvider extends ChangeNotifier {
     required String parentName,
     required String phone,
     required String address,
+    required String gender,
   }) async {
     _state = ChildProviderState.loading;
     _error = null;
@@ -40,6 +41,7 @@ class ChildProvider extends ChangeNotifier {
         parentName: parentName,
         phone: phone,
         address: address,
+        gender: gender,
       );
       _state = ChildProviderState.success;
       notifyListeners();

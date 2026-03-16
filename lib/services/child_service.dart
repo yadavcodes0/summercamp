@@ -33,6 +33,7 @@ class ChildService {
     required String parentName,
     required String phone,
     required String address,
+    required String gender,
   }) async {
     final childId = await _generateChildId();
 
@@ -44,6 +45,7 @@ class ChildService {
       'parent_name': parentName,
       'phone': phone,
       'address': address,
+      'gender': gender,
       'entry_status': false,
     };
 

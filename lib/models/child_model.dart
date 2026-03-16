@@ -6,6 +6,7 @@ class ChildModel {
   final String parentName;
   final String phone;
   final String address;
+  final String? gender;
   final bool entryStatus;
   final DateTime? entryTime;
   final DateTime createdAt;
@@ -18,6 +19,7 @@ class ChildModel {
     required this.parentName,
     required this.phone,
     required this.address,
+    this.gender,
     required this.entryStatus,
     this.entryTime,
     required this.createdAt,
@@ -32,6 +34,7 @@ class ChildModel {
       parentName: json['parent_name'] as String,
       phone: json['phone'] as String,
       address: json['address'] as String,
+      gender: json['gender'] as String?,
       entryStatus: json['entry_status'] as bool? ?? false,
       entryTime: json['entry_time'] != null
           ? DateTime.parse(json['entry_time'] as String)
@@ -47,6 +50,7 @@ class ChildModel {
       'parent_name': parentName,
       'phone': phone,
       'address': address,
+      'gender': gender,
     };
   }
 
@@ -59,6 +63,7 @@ class ChildModel {
       parentName: parentName,
       phone: phone,
       address: address,
+      gender: gender,
       entryStatus: entryStatus ?? this.entryStatus,
       entryTime: entryTime ?? this.entryTime,
       createdAt: createdAt,

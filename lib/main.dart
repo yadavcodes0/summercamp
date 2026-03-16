@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/config/supabase_config.dart';
 import 'package:summer_camp/firebase_options.dart';
+import 'package:summer_camp/providers/admin_dashboard_provider.dart';
 import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
+import 'package:summer_camp/screens/admin/admin_layout.dart';
 import 'package:summer_camp/screens/splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -41,6 +43,7 @@ class SummerCampApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ChildProvider()),
         ChangeNotifierProvider(create: (_) => VolunteerProvider()),
+        ChangeNotifierProvider(create: (_) => AdminDashboardProvider()),
       ],
       child: MaterialApp(
         title: 'Summer Camp 2026',
@@ -106,20 +109,31 @@ class SummerCampApp extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        builder: (context, child) {
-          return Container(
-            color: const Color(0xFFE0D5CC),
-            child: Center(
-              child: ClipRect(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: child,
+        initialRoute: '/',
+        onGenerateRoute: (settings) {
+          // Admin route — full-width
+          if (settings.name == '/admin') {
+            return MaterialPageRoute(
+              builder: (_) => const AdminLayout(),
+              settings: settings,
+            );
+          }
+          // Default mobile route
+          return MaterialPageRoute(
+            builder: (_) => Container(
+              color: const Color(0xFFE0D5CC),
+              child: Center(
+                child: ClipRect(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: const SplashScreen(),
+                  ),
                 ),
               ),
             ),
+            settings: settings,
           );
         },
-        home: const SplashScreen(),
       ),
     );
   }

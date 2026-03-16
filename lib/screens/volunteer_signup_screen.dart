@@ -20,6 +20,9 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   final _addressCtrl = TextEditingController();
   final _otpCtrl = TextEditingController();
 
+  // New field
+  String _gender = 'Male';
+
   // OTP State
   bool _isSendingOtp = false;
   bool _isOtpSent = false;
@@ -142,6 +145,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
       email: _emailCtrl.text.trim(),
       phone: _phoneCtrl.text.trim(),
       address: _addressCtrl.text.trim(),
+      gender: _gender,
     );
 
     if (!mounted) return;
@@ -262,6 +266,40 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 18),
+
+              _SectionLabel('Gender'),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(
+                      value: 'Male',
+                      label: Text('Male'),
+                      icon: Icon(Icons.male),
+                    ),
+                    ButtonSegment(
+                      value: 'Female',
+                      label: Text('Female'),
+                      icon: Icon(Icons.female),
+                    ),
+                  ],
+                  selected: {_gender},
+                  onSelectionChanged: (newSelection) {
+                    setState(() {
+                      _gender = newSelection.first;
+                    });
+                  },
+                  showSelectedIcon: false,
+                  style: SegmentedButton.styleFrom(
+                    selectedBackgroundColor: const Color(0xFF43A047),
+                    selectedForegroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFE8F5E9)),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 14),
 
               _AppTextField(

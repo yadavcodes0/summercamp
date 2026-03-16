@@ -33,6 +33,7 @@ class VolunteerProvider extends ChangeNotifier {
     required String email,
     required String phone,
     required String address,
+    required String gender,
   }) async {
     _isLoading = true;
     _error = null;
@@ -44,6 +45,7 @@ class VolunteerProvider extends ChangeNotifier {
       email: email,
       phone: phone,
       address: address,
+      gender: gender,
     );
 
     if (!success) {

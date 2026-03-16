@@ -1,11 +1,12 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
 import 'package:summer_camp/screens/home_screen.dart';
 
@@ -17,8 +18,7 @@ class RegistrationSuccessScreen extends StatefulWidget {
       _RegistrationSuccessScreenState();
 }
 
-class _RegistrationSuccessScreenState
-    extends State<RegistrationSuccessScreen> {
+class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
   final _screenshotController = ScreenshotController();
 
   Future<void> _shareQr(String childId) async {
@@ -29,10 +29,9 @@ class _RegistrationSuccessScreenState
     final file = File('${tempDir.path}/qr_$childId.png');
     await file.writeAsBytes(imageBytes);
 
-    await Share.shareXFiles(
-      [XFile(file.path)],
-      text: 'My Summer Camp 2026 QR Code - $childId',
-    );
+    await Share.shareXFiles([
+      XFile(file.path),
+    ], text: 'My Summer Camp 2026 QR Code - $childId');
   }
 
   @override
@@ -60,7 +59,8 @@ class _RegistrationSuccessScreenState
                 color: const Color(0xFF43A047).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                    color: const Color(0xFF43A047).withOpacity(0.3)),
+                  color: const Color(0xFF43A047).withOpacity(0.3),
+                ),
               ),
               child: Column(
                 children: [
@@ -107,6 +107,7 @@ class _RegistrationSuccessScreenState
                   _InfoRow(label: 'Age', value: '${child.age} years'),
                   const Divider(height: 20),
                   _InfoRow(label: 'Parent', value: child.parentName),
+                  const Divider(height: 20),
                 ],
               ),
             ),

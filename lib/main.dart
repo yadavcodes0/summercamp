@@ -109,31 +109,31 @@ class SummerCampApp extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        initialRoute: '/',
-        onGenerateRoute: (settings) {
-          // Admin route — full-width
-          if (settings.name == '/admin') {
-            return MaterialPageRoute(
-              builder: (_) => const AdminLayout(),
-              settings: settings,
-            );
-          }
-          // Default mobile route
-          return MaterialPageRoute(
-            builder: (_) => Container(
-              color: const Color(0xFFE0D5CC),
-              child: Center(
-                child: ClipRect(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
-                    child: const SplashScreen(),
-                  ),
+        routes: {
+          '/admin': (context) => const AdminLayout(),
+        },
+        builder: (context, child) {
+          // Check if the current URL is the admin route
+          final uri = Uri.base;
+          final isAdmin = uri.fragment.contains('admin');
+
+          // Admin dashboard gets full width
+          if (isAdmin) return child!;
+
+          // Mobile app gets constrained to 500px
+          return Container(
+            color: const Color(0xFFE0D5CC),
+            child: Center(
+              child: ClipRect(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: child,
                 ),
               ),
             ),
-            settings: settings,
           );
         },
+        home: const SplashScreen(),
       ),
     );
   }

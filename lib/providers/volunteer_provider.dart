@@ -14,6 +14,7 @@ class VolunteerProvider extends ChangeNotifier {
   String? get error => _error;
 
   String? get volunteerPhone => _service.volunteerPhone;
+  String? get volunteerName => _service.volunteerName;
 
   late Future<void> initializationDone;
 

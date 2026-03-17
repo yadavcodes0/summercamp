@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/providers/volunteer_provider.dart';
-import 'package:summer_camp/services/auth_service.dart';
 
 class VolunteerSignupScreen extends StatefulWidget {
   const VolunteerSignupScreen({super.key});
@@ -18,23 +17,8 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
-  final _otpCtrl = TextEditingController();
-
   // New field
   String _gender = 'Male';
-
-  // OTP State
-  bool _isSendingOtp = false;
-  bool _isOtpSent = false;
-  bool _isPhoneVerified = false;
-  String? _verificationId;
-  AuthService? _authService;
-
-  @override
-  void initState() {
-    super.initState();
-    _otpCtrl.addListener(_onOtpChanged);
-  }
 
   @override
   void dispose() {
@@ -43,100 +27,11 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
     _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
-    _otpCtrl.dispose();
     super.dispose();
   }
 
-  void _onOtpChanged() {
-    if (_otpCtrl.text.trim().length == 6 && !_isPhoneVerified) {
-      _verifyOtp();
-    }
-  }
-
-  bool _isPhoneValid() {
-    final phone = _phoneCtrl.text.trim();
-    return phone.length >= 10;
-  }
-
-  Future<void> _sendOtp() async {
-    // 1. Validate other fields first
-    if (!_formKey.currentState!.validate()) return;
-    
-    if (!_isPhoneValid()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enter a valid 10-digit phone number first'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    final phoneNum = _phoneCtrl.text.trim();
-    final fullPhone = phoneNum.startsWith('+') ? phoneNum : '+91$phoneNum';
-
-    setState(() => _isSendingOtp = true);
-
-    _authService = AuthService();
-    await _authService!.sendOTP(
-      phoneNumber: fullPhone,
-      onCodeSent: (verificationId) {
-        if (!mounted) return;
-        setState(() {
-          _isSendingOtp = false;
-          _isOtpSent = true;
-          _verificationId = verificationId;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('OTP sent successfully! ✅'),
-            backgroundColor: Color(0xFF43A047),
-          ),
-        );
-      },
-      onError: (errorMessage) {
-        if (!mounted) return;
-        setState(() => _isSendingOtp = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $errorMessage'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _verifyOtp() async {
-    if (_authService == null || _verificationId == null) return;
-
-    try {
-      await _authService!.verifyOTP(
-        verificationId: _verificationId!,
-        smsCode: _otpCtrl.text.trim(),
-      );
-
-      if (!mounted) return;
-      
-      setState(() => _isPhoneVerified = true);
-      
-      // Auto-submit form since everything is ready and verified
-      _submit();
-      
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Invalid OTP: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
   Future<void> _submit() async {
-    if (!_isPhoneVerified) return;
+    if (!_formKey.currentState!.validate()) return;
 
     final provider = context.read<VolunteerProvider>();
     final success = await provider.registerVolunteer(
@@ -316,132 +211,29 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
               _SectionLabel('Phone Verification'),
               const SizedBox(height: 12),
 
-              // ── Phone Number with Verify Button ──
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _phoneCtrl,
-                      keyboardType: TextInputType.phone,
-                      enabled: !_isPhoneVerified,
-                      decoration: InputDecoration(
-                        labelText: 'Phone Number',
-                        hintText: 'e.g. 9876543210',
-                        prefixIcon: const Icon(Icons.phone_outlined,
-                            color: Color(0xFF43A047), size: 20),
-                        suffixIcon: _isPhoneVerified
-                            ? const Icon(Icons.check_circle,
-                                color: Color(0xFF43A047), size: 24)
-                            : null,
-                      ),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (v.trim().length < 10) {
-                          return 'Enter a valid phone number';
-                        }
-                        return null;
-                      },
-                      onChanged: (_) {
-                        if (_isOtpSent || _isPhoneVerified) {
-                          setState(() {
-                            _isOtpSent = false;
-                            _isPhoneVerified = false;
-                            _otpCtrl.clear();
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: _isPhoneVerified
-                        ? Container(
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF43A047).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Verified ✅',
-                                style: GoogleFonts.splineSans(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF43A047),
-                                ),
-                              ),
-                            ),
-                          )
-                        : SizedBox(
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: _isSendingOtp ? null : _sendOtp,
-                              style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                minimumSize: Size.zero,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                backgroundColor: const Color(0xFF43A047),
-                              ),
-                              child: _isSendingOtp
-                                  ? const SizedBox(
-                                      height: 18,
-                                      width: 18,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : Text(
-                                      _isOtpSent ? 'Resend' : 'Verify',
-                                      style: const TextStyle(fontSize: 13),
-                                    ),
-                            ),
-                          ),
-                  ),
-                ],
+              // ── Phone Number ──
+              _AppTextField(
+                controller: _phoneCtrl,
+                label: 'Phone Number',
+                hint: 'e.g. 9876543210',
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Required';
+                  if (v.trim().length < 10) {
+                    return 'Enter a valid phone number';
+                  }
+                  return null;
+                },
               ),
-
-              // ── OTP Input Field (shown after OTP is sent) ──
-              if (_isOtpSent && !_isPhoneVerified) ...[
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: _otpCtrl,
-                  keyboardType: TextInputType.number,
-                  maxLength: 6,
-                  decoration: InputDecoration(
-                    labelText: 'Enter 6-digit OTP',
-                    hintText: '123456',
-                    counterText: '',
-                    prefixIcon: const Icon(Icons.lock_outline,
-                        color: Color(0xFF43A047), size: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Color(0xFF43A047), width: 2),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Color(0xFF43A047), width: 2),
-                    ),
-                  ),
-                ),
-              ],
+              const SizedBox(height: 14),
 
               const SizedBox(height: 32),
 
               ElevatedButton(
-                onPressed: (isLoading || !_isPhoneVerified) ? null : _submit,
+                onPressed: isLoading ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isPhoneVerified
-                      ? const Color(0xFF43A047)
-                      : Colors.grey.shade400,
+                  backgroundColor: const Color(0xFF43A047),
                 ),
                 child: isLoading
                     ? const SizedBox(
@@ -454,19 +246,6 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       )
                     : const Text('Sign Up'),
               ),
-
-              if (!_isPhoneVerified)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    'Verify your phone number first',
-                    style: GoogleFonts.splineSans(
-                      fontSize: 12,
-                      color: const Color(0xFF888888),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
 
               const SizedBox(height: 24),
             ],

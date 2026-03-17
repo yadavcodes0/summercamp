@@ -5,18 +5,22 @@ class VolunteerService {
   final _client = Supabase.instance.client;
   static const String _keyIsLoggedIn = 'volunteer_is_logged_in';
   static const String _keyVolunteerPhone = 'volunteer_phone';
+  static const String _keyVolunteerName = 'volunteer_name';
 
   bool _isLoggedIn = false;
   String? _volunteerPhone;
+  String? _volunteerName;
 
   bool get isLoggedIn => _isLoggedIn;
   String? get volunteerPhone => _volunteerPhone;
+  String? get volunteerName => _volunteerName;
 
   /// Call this when the app starts to load saved login state
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     _isLoggedIn = prefs.getBool(_keyIsLoggedIn) ?? false;
     _volunteerPhone = prefs.getString(_keyVolunteerPhone);
+    _volunteerName = prefs.getString(_keyVolunteerName);
   }
 
   Future<bool> registerVolunteer({
@@ -65,18 +69,21 @@ class VolunteerService {
       // Verify phone number exists in volunteers table
       final volunteer = await _client
           .from('volunteers')
-          .select('id, phone_number')
+          .select('id, phone_number, full_name')
           .eq('phone_number', phone)
           .maybeSingle();
 
       if (volunteer != null) {
         // Successful login
+        final name = volunteer['full_name'] as String?;
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(_keyIsLoggedIn, true);
         await prefs.setString(_keyVolunteerPhone, phone);
+        if (name != null) await prefs.setString(_keyVolunteerName, name);
         
         _isLoggedIn = true;
         _volunteerPhone = phone;
+        _volunteerName = name;
         return true;
       }
       return false;
@@ -89,7 +96,9 @@ class VolunteerService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyIsLoggedIn);
     await prefs.remove(_keyVolunteerPhone);
+    await prefs.remove(_keyVolunteerName);
     _isLoggedIn = false;
     _volunteerPhone = null;
+    _volunteerName = null;
   }
 }

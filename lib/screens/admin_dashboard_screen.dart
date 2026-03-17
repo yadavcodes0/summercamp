@@ -28,13 +28,18 @@ class AdminDashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Welcome, Volunteer!',
-                  style: GoogleFonts.splineSans(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A1A),
-                  ),
+                Consumer<VolunteerProvider>(
+                  builder: (context, provider, _) {
+                    final name = provider.volunteerName ?? 'Volunteer';
+                    return Text(
+                      'Welcome, $name!',
+                      style: GoogleFonts.splineSans(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1A1A1A),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 8),
                 Text(

@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:gal/gal.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +12,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:summer_camp/providers/child_provider.dart';
 import 'package:summer_camp/screens/home_screen.dart';
+import 'package:summer_camp/services/file_saver.dart';
 
 class RegistrationSuccessScreen extends StatefulWidget {
   const RegistrationSuccessScreen({super.key});
@@ -25,6 +29,11 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
     final imageBytes = await _screenshotController.capture();
     if (imageBytes == null) return;
 
+    if (kIsWeb) {
+      await FileSaver.saveFileBytes('SummerCamp_QR_$childId.png', imageBytes);
+      return;
+    }
+
     final tempDir = await getTemporaryDirectory();
     final file = File('${tempDir.path}/qr_$childId.png');
     await file.writeAsBytes(imageBytes);
@@ -32,6 +41,57 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
     await Share.shareXFiles([
       XFile(file.path),
     ], text: 'My Summer Camp 2026 QR Code - $childId');
+  }
+
+  Future<void> _saveToGallery(String childId) async {
+    final Uint8List? imageBytes = await _screenshotController.capture();
+    if (imageBytes == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to capture QR code')),
+        );
+      }
+      return;
+    }
+
+    if (kIsWeb) {
+      await FileSaver.saveFileBytes('SummerCamp_QR_$childId.png', imageBytes);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('QR code downloaded!'),
+            backgroundColor: Color(0xFF43A047),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      // Save to a temp file first, then use Gal to save to gallery
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/SummerCamp_QR_$childId.png');
+      await file.writeAsBytes(imageBytes);
+      await Gal.putImage(file.path, album: 'SummerCamp');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('QR code saved to gallery!'),
+            backgroundColor: Color(0xFF43A047),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save QR code: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -162,6 +222,23 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
             ),
 
             const SizedBox(height: 28),
+
+            // Download to Gallery Button
+            ElevatedButton.icon(
+              onPressed: () => _saveToGallery(child.childId),
+              icon: const Icon(Icons.download_rounded),
+              label: const Text('Save to Gallery'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 54),
+                backgroundColor: const Color(0xFF43A047),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 14),
 
             // Share Button
             ElevatedButton.icon(

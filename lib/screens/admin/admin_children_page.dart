@@ -1,11 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/models/child_model.dart';
 import 'package:summer_camp/providers/admin_dashboard_provider.dart';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'package:summer_camp/services/file_saver.dart';
 
 class AdminChildrenPage extends StatefulWidget {
   const AdminChildrenPage({super.key});
@@ -45,14 +43,7 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
     }).join('\n');
 
     final csvContent = header + rows;
-    final bytes = utf8.encode(csvContent);
-    final blob = html.Blob([bytes]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    // ignore: unused_local_variable
-    final anchor = html.AnchorElement(href: url)
-      ..setAttribute('download', 'children_data.csv')
-      ..click();
-    html.Url.revokeObjectUrl(url);
+    FileSaver.saveFile('children_data.csv', csvContent);
   }
 
   @override

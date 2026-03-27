@@ -36,7 +36,7 @@ class ChildrenListScreen extends StatelessWidget {
             Expanded(
               child: ListView.separated(
                 itemCount: children.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final child = children[index];
                   return _ChildCard(child: child);
@@ -155,7 +155,7 @@ class _QrBottomSheet extends StatelessWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
-              color: const Color(0xFFDDD),
+              color: const Color(0x000ffddd),
               borderRadius: BorderRadius.circular(2),
             ),
           ),

@@ -20,27 +20,31 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
   List<ChildModel> _filter(List<ChildModel> children) {
     return children.where((c) {
       final q = _searchQuery.toLowerCase();
-      final matchesSearch = q.isEmpty ||
+      final matchesSearch =
+          q.isEmpty ||
           c.childName.toLowerCase().contains(q) ||
           c.childId.toLowerCase().contains(q) ||
           c.phone.contains(q);
 
-      final matchesStatus = _statusFilter == 'All' ||
+      final matchesStatus =
+          _statusFilter == 'All' ||
           (_statusFilter == 'Entered' && c.entryStatus) ||
           (_statusFilter == 'Not Entered' && !c.entryStatus);
 
-      final matchesGender =
-          _genderFilter == 'All' || c.gender == _genderFilter;
+      final matchesGender = _genderFilter == 'All' || c.gender == _genderFilter;
 
       return matchesSearch && matchesStatus && matchesGender;
     }).toList();
   }
 
   void _exportCsv(List<ChildModel> data) {
-    final header = 'Child Name,Age,Gender,Camp ID,Parent,Phone,Address,Entry Status,Entry Time\n';
-    final rows = data.map((c) {
-      return '${c.childName},${c.age},${c.gender ?? ''},${c.childId},${c.parentName},${c.phone},${c.address},${c.entryStatus ? 'Entered' : 'Not Entered'},${c.entryTime ?? ''}';
-    }).join('\n');
+    final header =
+        'Child Name,Age,Gender,Camp ID,Parent,Phone,Address,Entry Status,Entry Time\n';
+    final rows = data
+        .map((c) {
+          return '${c.childName},${c.age},${c.gender ?? ''},${c.childId},${c.parentName},${c.phone},${c.address},${c.entryStatus ? 'Entered' : 'Not Entered'},${c.entryTime ?? ''}';
+        })
+        .join('\n');
 
     final csvContent = header + rows;
     FileSaver.saveFile('children_data.csv', csvContent);
@@ -66,8 +70,15 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
                   onChanged: (v) => setState(() => _searchQuery = v),
                   decoration: InputDecoration(
                     hintText: 'Search by Name, Camp ID, or Phone...',
-                    hintStyle: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF999999)),
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF999999), size: 20),
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: const Color(0xFF999999),
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Color(0xFF999999),
+                      size: 20,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -94,20 +105,33 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
               ElevatedButton.icon(
                 onPressed: () => _exportCsv(filtered),
                 icon: const Icon(Icons.download_rounded, size: 18),
-                label: Text('Export CSV', style: GoogleFonts.inter(fontSize: 13)),
+                label: Text(
+                  'Export CSV',
+                  style: GoogleFonts.inter(fontSize: 13),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFf97b06),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   minimumSize: Size.zero,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          Text('${filtered.length} records',
-              style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF888888))),
+          Text(
+            '${filtered.length} records',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: const Color(0xFF888888),
+            ),
+          ),
           const SizedBox(height: 16),
 
           // Data Table
@@ -142,16 +166,51 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
                 final timeStr = time != null
                     ? '${time.hour % 12 == 0 ? 12 : time.hour % 12}:${time.minute.toString().padLeft(2, '0')} ${time.hour < 12 ? 'AM' : 'PM'}'
                     : '—';
-                return DataRow(cells: [
-                  DataCell(Text(c.childName, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500))),
-                  DataCell(Text('${c.age}', style: GoogleFonts.inter(fontSize: 13))),
-                  DataCell(Text(c.gender ?? '—', style: GoogleFonts.inter(fontSize: 13))),
-                  DataCell(Text(c.childId, style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFFf97b06), fontWeight: FontWeight.w600))),
-                  DataCell(Text(c.parentName, style: GoogleFonts.inter(fontSize: 13))),
-                  DataCell(Text(c.phone, style: GoogleFonts.inter(fontSize: 13))),
-                  DataCell(_StatusBadge(entered: c.entryStatus)),
-                  DataCell(Text(timeStr, style: GoogleFonts.inter(fontSize: 13))),
-                ]);
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Text(
+                        c.childName,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      Text('${c.age}', style: GoogleFonts.inter(fontSize: 13)),
+                    ),
+                    DataCell(
+                      Text(
+                        c.gender ?? '—',
+                        style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        c.childId,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: const Color(0xFFf97b06),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        c.parentName,
+                        style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                    DataCell(
+                      Text(c.phone, style: GoogleFonts.inter(fontSize: 13)),
+                    ),
+                    DataCell(_StatusBadge(entered: c.entryStatus)),
+                    DataCell(
+                      Text(timeStr, style: GoogleFonts.inter(fontSize: 13)),
+                    ),
+                  ],
+                );
               }).toList(),
             ),
           ),
@@ -162,8 +221,10 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
 
   DataColumn _col(String label) {
     return DataColumn(
-      label: Text(label,
-          style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12)),
+      label: Text(
+        label,
+        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+      ),
     );
   }
 }
@@ -191,9 +252,12 @@ class _FilterDropdown extends StatelessWidget {
         child: DropdownButton<String>(
           value: value,
           items: items
-              .map((e) => DropdownMenuItem(
+              .map(
+                (e) => DropdownMenuItem(
                   value: e,
-                  child: Text(e, style: GoogleFonts.inter(fontSize: 13))))
+                  child: Text(e, style: GoogleFonts.inter(fontSize: 13)),
+                ),
+              )
               .toList(),
           onChanged: onChanged,
         ),

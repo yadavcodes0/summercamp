@@ -68,6 +68,30 @@ class HomeScreen extends StatelessWidget {
                         'assets/images/banner2.png',
                         width: double.infinity,
                         fit: BoxFit.cover,
+                        frameBuilder:
+                            (context, child, frame, wasSynchronouslyLoaded) {
+                          if (wasSynchronouslyLoaded) return child;
+                          return AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: frame != null
+                                ? child
+                                : Container(
+                                    width: double.infinity,
+                                    height: 200,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<
+                                            Color>(Color(0xFFf97b06)),
+                                      ),
+                                    ),
+                                  ),
+                          );
+                        },
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             width: double.infinity,

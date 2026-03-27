@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "public": true,
+  "name": "summer-camp-2026",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "cleanUrls": true,
+  "framework": null,
+  "outputDirectory": "build/web"
+}

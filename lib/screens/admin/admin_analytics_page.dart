@@ -27,10 +27,12 @@ class AdminAnalyticsPage extends StatelessWidget {
       final day = now.subtract(Duration(days: i));
       final key = '${day.day}/${day.month}';
       dailyData[key] = children
-          .where((c) =>
-              c.createdAt.day == day.day &&
-              c.createdAt.month == day.month &&
-              c.createdAt.year == day.year)
+          .where(
+            (c) =>
+                c.createdAt.day == day.day &&
+                c.createdAt.month == day.month &&
+                c.createdAt.year == day.year,
+          )
           .length;
     }
 
@@ -49,7 +51,10 @@ class AdminAnalyticsPage extends StatelessWidget {
                   child: SizedBox(
                     height: 260,
                     child: _GenderChart(
-                        male: male, female: female, other: other),
+                      male: male,
+                      female: female,
+                      other: other,
+                    ),
                   ),
                 ),
               ),
@@ -102,7 +107,8 @@ class AdminAnalyticsPage extends StatelessWidget {
               const SizedBox(width: 16),
               _SummaryCard(
                 title: 'Total Today',
-                value: '${children.where((c) => c.createdAt.day == now.day && c.createdAt.month == now.month).length}',
+                value:
+                    '${children.where((c) => c.createdAt.day == now.day && c.createdAt.month == now.month).length}',
                 icon: Icons.today_rounded,
                 color: const Color(0xFFf97b06),
               ),
@@ -137,11 +143,14 @@ class _ChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A2E))),
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF1A1A2E),
+            ),
+          ),
           const SizedBox(height: 20),
           child,
         ],
@@ -155,11 +164,12 @@ class _SummaryCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
-  const _SummaryCard(
-      {required this.title,
-      required this.value,
-      required this.icon,
-      required this.color});
+  const _SummaryCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -192,14 +202,21 @@ class _SummaryCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(value,
-                    style: GoogleFonts.inter(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A2E))),
-                Text(title,
-                    style: GoogleFonts.inter(
-                        fontSize: 12, color: const Color(0xFF888888))),
+                Text(
+                  value,
+                  style: GoogleFonts.inter(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1A1A2E),
+                  ),
+                ),
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: const Color(0xFF888888),
+                  ),
+                ),
               ],
             ),
           ],
@@ -212,8 +229,11 @@ class _SummaryCard extends StatelessWidget {
 // ── Gender Pie Chart ──
 class _GenderChart extends StatelessWidget {
   final int male, female, other;
-  const _GenderChart(
-      {required this.male, required this.female, required this.other});
+  const _GenderChart({
+    required this.male,
+    required this.female,
+    required this.other,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +247,10 @@ class _GenderChart extends StatelessWidget {
             color: const Color(0xFFf97b06),
             title: 'Male\n$male',
             titleStyle: GoogleFonts.inter(
-                fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
             radius: 70,
           ),
           PieChartSectionData(
@@ -235,7 +258,10 @@ class _GenderChart extends StatelessWidget {
             color: const Color(0xFF5C6BC0),
             title: 'Female\n$female',
             titleStyle: GoogleFonts.inter(
-                fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
             radius: 70,
           ),
           if (other > 0)
@@ -244,9 +270,10 @@ class _GenderChart extends StatelessWidget {
               color: const Color(0xFF888888),
               title: 'Other\n$other',
               titleStyle: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
               radius: 70,
             ),
         ],
@@ -276,9 +303,13 @@ class _AgeChart extends StatelessWidget {
                 const labels = ['5–8 yrs', '9–12 yrs', '13–16 yrs'];
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Text(labels[value.toInt()],
-                      style: GoogleFonts.inter(
-                          fontSize: 11, color: const Color(0xFF888888))),
+                  child: Text(
+                    labels[value.toInt()],
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
                 );
               },
             ),
@@ -287,15 +318,21 @@ class _AgeChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 32,
-              getTitlesWidget: (value, meta) => Text('${value.toInt()}',
-                  style: GoogleFonts.inter(
-                      fontSize: 10, color: const Color(0xFF888888))),
+              getTitlesWidget: (value, meta) => Text(
+                '${value.toInt()}',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: const Color(0xFF888888),
+                ),
+              ),
             ),
           ),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         gridData: FlGridData(
           drawVerticalLine: false,
@@ -313,14 +350,17 @@ class _AgeChart extends StatelessWidget {
   }
 
   BarChartGroupData _bar(int x, double y) {
-    return BarChartGroupData(x: x, barRods: [
-      BarChartRodData(
-        toY: y,
-        color: const Color(0xFFf97b06),
-        width: 36,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-      ),
-    ]);
+    return BarChartGroupData(
+      x: x,
+      barRods: [
+        BarChartRodData(
+          toY: y,
+          color: const Color(0xFFf97b06),
+          width: 36,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+        ),
+      ],
+    );
   }
 }
 
@@ -349,9 +389,13 @@ class _DailyLineChart extends StatelessWidget {
                 if (i >= 0 && i < entries.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: Text(entries[i].key,
-                        style: GoogleFonts.inter(
-                            fontSize: 11, color: const Color(0xFF888888))),
+                    child: Text(
+                      entries[i].key,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: const Color(0xFF888888),
+                      ),
+                    ),
                   );
                 }
                 return const SizedBox.shrink();
@@ -362,15 +406,21 @@ class _DailyLineChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 32,
-              getTitlesWidget: (value, meta) => Text('${value.toInt()}',
-                  style: GoogleFonts.inter(
-                      fontSize: 10, color: const Color(0xFF888888))),
+              getTitlesWidget: (value, meta) => Text(
+                '${value.toInt()}',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: const Color(0xFF888888),
+                ),
+              ),
             ),
           ),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         gridData: FlGridData(
           drawVerticalLine: false,
@@ -380,8 +430,10 @@ class _DailyLineChart extends StatelessWidget {
         borderData: FlBorderData(show: false),
         lineBarsData: [
           LineChartBarData(
-            spots: List.generate(entries.length,
-                (i) => FlSpot(i.toDouble(), entries[i].value.toDouble())),
+            spots: List.generate(
+              entries.length,
+              (i) => FlSpot(i.toDouble(), entries[i].value.toDouble()),
+            ),
             isCurved: true,
             color: const Color(0xFFf97b06),
             barWidth: 3,
@@ -389,11 +441,11 @@ class _DailyLineChart extends StatelessWidget {
               show: true,
               getDotPainter: (spot, percent, barData, index) =>
                   FlDotCirclePainter(
-                radius: 5,
-                color: const Color(0xFFf97b06),
-                strokeWidth: 2,
-                strokeColor: Colors.white,
-              ),
+                    radius: 5,
+                    color: const Color(0xFFf97b06),
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  ),
             ),
             belowBarData: BarAreaData(
               show: true,

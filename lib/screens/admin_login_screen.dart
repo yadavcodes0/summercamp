@@ -112,8 +112,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Phone Number',
                   hintText: 'e.g. 9876543210',
-                  prefixIcon: Icon(Icons.phone_outlined,
-                      color: Color(0xFF43A047)),
+                  prefixIcon: Icon(
+                    Icons.phone_outlined,
+                    color: Color(0xFF43A047),
+                  ),
                 ),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'Required';
@@ -129,8 +131,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 decoration: InputDecoration(
                   labelText: 'Camp Password',
                   hintText: '••••••••',
-                  prefixIcon: const Icon(Icons.lock_outline,
-                      color: Color(0xFF43A047)),
+                  prefixIcon: const Icon(
+                    Icons.lock_outline,
+                    color: Color(0xFF43A047),
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
@@ -164,9 +168,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       )
                     : const Text('Login'),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               Center(
                 child: TextButton(
                   onPressed: () {

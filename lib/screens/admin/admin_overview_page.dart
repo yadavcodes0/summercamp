@@ -19,8 +19,10 @@ class AdminOverviewPage extends StatelessWidget {
 
     if (provider.error != null) {
       return Center(
-        child: Text('Error: ${provider.error}',
-            style: const TextStyle(color: Colors.red)),
+        child: Text(
+          'Error: ${provider.error}',
+          style: const TextStyle(color: Colors.red),
+        ),
       );
     }
 
@@ -247,44 +249,73 @@ class _RecentEntriesTable extends StatelessWidget {
       headingRowColor: WidgetStateProperty.all(const Color(0xFFF5F5FA)),
       columns: [
         DataColumn(
-            label: Text('Child Name',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12))),
+          label: Text(
+            'Child Name',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
+        ),
         DataColumn(
-            label: Text('Camp ID',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12))),
+          label: Text(
+            'Camp ID',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
+        ),
         DataColumn(
-            label: Text('Entry Time',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12))),
+          label: Text(
+            'Entry Time',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
+        ),
         DataColumn(
-            label: Text('Status',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12))),
+          label: Text(
+            'Status',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
+        ),
       ],
       rows: entries.map<DataRow>((child) {
         final time = child.entryTime;
         final timeStr = time != null
             ? '${time.hour % 12 == 0 ? 12 : time.hour % 12}:${time.minute.toString().padLeft(2, '0')} ${time.hour < 12 ? 'AM' : 'PM'}'
             : '—';
-        return DataRow(cells: [
-          DataCell(Text(child.childName, style: GoogleFonts.inter(fontSize: 13))),
-          DataCell(Text(child.childId,
-              style: GoogleFonts.inter(
+        return DataRow(
+          cells: [
+            DataCell(
+              Text(child.childName, style: GoogleFonts.inter(fontSize: 13)),
+            ),
+            DataCell(
+              Text(
+                child.childId,
+                style: GoogleFonts.inter(
                   fontSize: 13,
                   color: const Color(0xFFf97b06),
-                  fontWeight: FontWeight.w600))),
-          DataCell(Text(timeStr, style: GoogleFonts.inter(fontSize: 13))),
-          DataCell(Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF43A047).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-            child: Text('Entered',
-                style: GoogleFonts.inter(
+            DataCell(Text(timeStr, style: GoogleFonts.inter(fontSize: 13))),
+            DataCell(
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF43A047).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Entered',
+                  style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF43A047))),
-          )),
-        ]);
+                    color: const Color(0xFF43A047),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
       }).toList(),
     );
   }
@@ -304,8 +335,11 @@ class _GenderPieChart extends StatelessWidget {
 
     if (children.isEmpty) {
       return Center(
-          child: Text('No data',
-              style: GoogleFonts.inter(color: const Color(0xFF888888))));
+        child: Text(
+          'No data',
+          style: GoogleFonts.inter(color: const Color(0xFF888888)),
+        ),
+      );
     }
 
     return Row(
@@ -321,9 +355,10 @@ class _GenderPieChart extends StatelessWidget {
                   color: const Color(0xFFf97b06),
                   title: '$male',
                   titleStyle: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                   radius: 50,
                 ),
                 PieChartSectionData(
@@ -331,9 +366,10 @@ class _GenderPieChart extends StatelessWidget {
                   color: const Color(0xFF5C6BC0),
                   title: '$female',
                   titleStyle: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                   radius: 50,
                 ),
                 if (other > 0)
@@ -342,9 +378,10 @@ class _GenderPieChart extends StatelessWidget {
                     color: const Color(0xFF888888),
                     title: '$other',
                     titleStyle: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                     radius: 50,
                   ),
               ],
@@ -358,10 +395,16 @@ class _GenderPieChart extends StatelessWidget {
           children: [
             _LegendDot(color: const Color(0xFFf97b06), label: 'Male ($male)'),
             const SizedBox(height: 8),
-            _LegendDot(color: const Color(0xFF5C6BC0), label: 'Female ($female)'),
+            _LegendDot(
+              color: const Color(0xFF5C6BC0),
+              label: 'Female ($female)',
+            ),
             if (other > 0) ...[
               const SizedBox(height: 8),
-              _LegendDot(color: const Color(0xFF888888), label: 'Other ($other)'),
+              _LegendDot(
+                color: const Color(0xFF888888),
+                label: 'Other ($other)',
+              ),
             ],
           ],
         ),
@@ -385,7 +428,13 @@ class _LegendDot extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
-        Text(label, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF555555))),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: const Color(0xFF555555),
+          ),
+        ),
       ],
     );
   }
@@ -418,8 +467,13 @@ class _AgeBarChart extends StatelessWidget {
                 if (value.toInt() >= 0 && value.toInt() < labels.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: Text(labels[value.toInt()],
-                        style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF888888))),
+                    child: Text(
+                      labels[value.toInt()],
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: const Color(0xFF888888),
+                      ),
+                    ),
                   );
                 }
                 return const SizedBox.shrink();
@@ -431,21 +485,28 @@ class _AgeBarChart extends StatelessWidget {
               showTitles: true,
               reservedSize: 30,
               getTitlesWidget: (value, meta) {
-                return Text('${value.toInt()}',
-                    style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF888888)));
+                return Text(
+                  '${value.toInt()}',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: const Color(0xFF888888),
+                  ),
+                );
               },
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
-          getDrawingHorizontalLine: (value) => FlLine(
-            color: const Color(0xFFEEEEEE),
-            strokeWidth: 1,
-          ),
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: const Color(0xFFEEEEEE), strokeWidth: 1),
         ),
         borderData: FlBorderData(show: false),
         barGroups: [
@@ -458,13 +519,16 @@ class _AgeBarChart extends StatelessWidget {
   }
 
   BarChartGroupData _barGroup(int x, double y) {
-    return BarChartGroupData(x: x, barRods: [
-      BarChartRodData(
-        toY: y,
-        color: const Color(0xFFf97b06),
-        width: 28,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-      ),
-    ]);
+    return BarChartGroupData(
+      x: x,
+      barRods: [
+        BarChartRodData(
+          toY: y,
+          color: const Color(0xFFf97b06),
+          width: 28,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+        ),
+      ],
+    );
   }
 }

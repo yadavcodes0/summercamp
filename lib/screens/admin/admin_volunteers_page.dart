@@ -41,8 +41,15 @@ class _AdminVolunteersPageState extends State<AdminVolunteersPage> {
                   onChanged: (v) => setState(() => _searchQuery = v),
                   decoration: InputDecoration(
                     hintText: 'Search by Name or Phone...',
-                    hintStyle: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF999999)),
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF999999), size: 20),
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: const Color(0xFF999999),
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Color(0xFF999999),
+                      size: 20,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -56,8 +63,13 @@ class _AdminVolunteersPageState extends State<AdminVolunteersPage> {
             ],
           ),
           const SizedBox(height: 10),
-          Text('${filtered.length} volunteers',
-              style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF888888))),
+          Text(
+            '${filtered.length} volunteers',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: const Color(0xFF888888),
+            ),
+          ),
           const SizedBox(height: 16),
 
           // Data Table
@@ -86,20 +98,49 @@ class _AdminVolunteersPageState extends State<AdminVolunteersPage> {
                 _col('Address'),
               ],
               rows: filtered.map((v) {
-                return DataRow(cells: [
-                  DataCell(Text(v['full_name'] ?? '—',
-                      style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500))),
-                  DataCell(Text('${v['age'] ?? '—'}',
-                      style: GoogleFonts.inter(fontSize: 13))),
-                  DataCell(Text(v['gender'] ?? '—',
-                      style: GoogleFonts.inter(fontSize: 13))),
-                  DataCell(Text(v['phone_number'] ?? '—',
-                      style: GoogleFonts.inter(fontSize: 13))),
-                  DataCell(Text(v['email_address'] ?? '—',
-                      style: GoogleFonts.inter(fontSize: 13))),
-                  DataCell(Text(v['address'] ?? '—',
-                      style: GoogleFonts.inter(fontSize: 13))),
-                ]);
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Text(
+                        v['full_name'] ?? '—',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        '${v['age'] ?? '—'}',
+                        style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        v['gender'] ?? '—',
+                        style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        v['phone_number'] ?? '—',
+                        style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        v['email_address'] ?? '—',
+                        style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        v['address'] ?? '—',
+                        style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                );
               }).toList(),
             ),
           ),
@@ -110,8 +151,10 @@ class _AdminVolunteersPageState extends State<AdminVolunteersPage> {
 
   DataColumn _col(String label) {
     return DataColumn(
-      label: Text(label,
-          style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12)),
+      label: Text(
+        label,
+        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+      ),
     );
   }
 }

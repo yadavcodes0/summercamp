@@ -25,12 +25,14 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
-    _scaleAnim = Tween<double>(begin: 0.7, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _scaleAnim = Tween<double>(
+      begin: 0.7,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
     _controller.forward();
 
     final provider = context.read<VolunteerProvider>();
@@ -42,18 +44,18 @@ class _SplashScreenState extends State<SplashScreen>
         if (provider.isLoggedIn) {
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const AdminDashboardScreen(),
+              pageBuilder: (_, _, _) => const AdminDashboardScreen(),
               transitionDuration: const Duration(milliseconds: 600),
-              transitionsBuilder: (_, animation, __, child) =>
+              transitionsBuilder: (_, animation, _, child) =>
                   FadeTransition(opacity: animation, child: child),
             ),
           );
         } else {
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const HomeScreen(),
+              pageBuilder: (_, _, _) => const HomeScreen(),
               transitionDuration: const Duration(milliseconds: 600),
-              transitionsBuilder: (_, animation, __, child) =>
+              transitionsBuilder: (_, animation, _, child) =>
                   FadeTransition(opacity: animation, child: child),
             ),
           );

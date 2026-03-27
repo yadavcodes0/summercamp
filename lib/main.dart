@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/config/supabase_config.dart';
@@ -13,6 +14,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Use clean URL paths (/admin) instead of hash (#/admin)
+  usePathUrlStrategy();
 
   try {
     await Supabase.initialize(
@@ -31,23 +35,31 @@ void main() async {
     debugPrint('Firebase Init Error: $e');
   }
 
-  final uriBaseString = Uri.base.toString();
-  debugPrint('====== URL AT STARTUP ======');
-  debugPrint('Uri.base: $uriBaseString');
-  final isAdmin = uriBaseString.contains('admin');
-  debugPrint('isAdmin: $isAdmin');
-  
-  runApp(isAdmin ? const AdminPanelApp() : const MobileApp());
+  // Check URL path at startup to determine which app to show
+  final uri = Uri.base;
+  final isAdmin = uri.path.contains('admin') ||
+      uri.fragment.contains('admin');
+
+  runApp(SummerCampApp(isAdmin: isAdmin));
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ADMIN PANEL — Full-width web dashboard (accessed via /#/admin)
+// UNIFIED APP — Routes to Admin or Mobile based on URL path
 // ═══════════════════════════════════════════════════════════════
-class AdminPanelApp extends StatelessWidget {
-  const AdminPanelApp({super.key});
+class SummerCampApp extends StatelessWidget {
+  final bool isAdmin;
+  const SummerCampApp({super.key, required this.isAdmin});
 
   @override
   Widget build(BuildContext context) {
+    if (isAdmin) {
+      return _buildAdminApp();
+    }
+    return _buildMobileApp();
+  }
+
+  // ── Admin Panel App ──
+  Widget _buildAdminApp() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ChildProvider()),
@@ -65,20 +77,29 @@ class AdminPanelApp extends StatelessWidget {
           textTheme: GoogleFonts.interTextTheme(),
           scaffoldBackgroundColor: const Color(0xFFF5F5FA),
         ),
-        home: const AdminLayout(),
+        initialRoute: '/admin',
+        onGenerateInitialRoutes: (initialRoute) {
+          // Push a single route for /admin (bypasses Flutter's default
+          // behaviour of splitting the path into segments)
+          return [
+            MaterialPageRoute(
+              settings: const RouteSettings(name: '/admin'),
+              builder: (_) => const AdminLayout(),
+            ),
+          ];
+        },
+        onGenerateRoute: (settings) {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (_) => const AdminLayout(),
+          );
+        },
       ),
     );
   }
-}
 
-// ═══════════════════════════════════════════════════════════════
-// MOBILE APP — Constrained to 500px (normal app for parents/volunteers)
-// ═══════════════════════════════════════════════════════════════
-class MobileApp extends StatelessWidget {
-  const MobileApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+  // ── Mobile App ──
+  Widget _buildMobileApp() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ChildProvider()),
@@ -130,7 +151,8 @@ class MobileApp extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFf97b06), width: 2),
+              borderSide:
+                  const BorderSide(color: Color(0xFFf97b06), width: 2),
             ),
             filled: true,
             fillColor: Colors.white,

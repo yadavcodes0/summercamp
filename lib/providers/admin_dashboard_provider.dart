@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:summer_camp/models/child_model.dart';
 import 'package:summer_camp/services/admin_dashboard_service.dart';
@@ -57,14 +58,16 @@ class AdminDashboardProvider extends ChangeNotifier {
   }
 
   void _updateDerivedData() {
-    // We need both streams to have emitted at least once to hide loading state, 
+    // We need both streams to have emitted at least once to hide loading state,
     // but we can compute with what we have anyway.
     _isLoading = false;
 
     // Calc Stats
     final totalChildren = _children.length;
     final totalVolunteers = _volunteers.length;
-    final enteredChildren = _children.where((c) => c.entryStatus == true).length;
+    final enteredChildren = _children
+        .where((c) => c.entryStatus == true)
+        .length;
     final remainingChildren = totalChildren - enteredChildren;
 
     _stats = {
@@ -85,10 +88,10 @@ class AdminDashboardProvider extends ChangeNotifier {
       }
       if (a.entryTime != null) return -1;
       if (b.entryTime != null) return 1;
-      
+
       return b.createdAt.compareTo(a.createdAt);
     });
-    
+
     _recentEntries = enteredList.take(10).toList();
 
     notifyListeners();

@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "flutter build web --release"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.99.2",
     "google-auth-library": "^10.6.2"

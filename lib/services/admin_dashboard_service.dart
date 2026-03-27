@@ -1,5 +1,5 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:summer_camp/models/child_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdminDashboardService {
   final _client = Supabase.instance.client;

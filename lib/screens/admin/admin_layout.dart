@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/providers/admin_dashboard_provider.dart';
-import 'package:summer_camp/screens/admin/admin_overview_page.dart';
-import 'package:summer_camp/screens/admin/admin_children_page.dart';
-import 'package:summer_camp/screens/admin/admin_volunteers_page.dart';
 import 'package:summer_camp/screens/admin/admin_analytics_page.dart';
+import 'package:summer_camp/screens/admin/admin_children_page.dart';
+import 'package:summer_camp/screens/admin/admin_overview_page.dart';
+import 'package:summer_camp/screens/admin/admin_volunteers_page.dart';
 
 class AdminLayout extends StatefulWidget {
   const AdminLayout({super.key});
@@ -72,8 +72,11 @@ class _AdminLayoutState extends State<AdminLayout> {
                           color: const Color(0xFFf97b06),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.forest_rounded,
-                            color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.forest_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -109,8 +112,10 @@ class _AdminLayoutState extends State<AdminLayout> {
                   final item = _menuItems[i];
                   final isActive = _selectedIndex == i;
                   return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 2,
+                    ),
                     child: Material(
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
@@ -120,7 +125,9 @@ class _AdminLayoutState extends State<AdminLayout> {
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: isActive
                                 ? const Color(0xFFf97b06).withOpacity(0.15)
@@ -128,8 +135,10 @@ class _AdminLayoutState extends State<AdminLayout> {
                             borderRadius: BorderRadius.circular(10),
                             border: isActive
                                 ? Border.all(
-                                    color: const Color(0xFFf97b06)
-                                        .withOpacity(0.3))
+                                    color: const Color(
+                                      0xFFf97b06,
+                                    ).withOpacity(0.3),
+                                  )
                                 : null,
                           ),
                           child: Row(
@@ -166,8 +175,10 @@ class _AdminLayoutState extends State<AdminLayout> {
 
                 // Footer
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 20,
+                  ),
                   child: Text(
                     '© 2026 Summer Camp',
                     style: GoogleFonts.inter(
@@ -249,8 +260,18 @@ class _AdminLayoutState extends State<AdminLayout> {
   String _formattedDate() {
     final now = DateTime.now();
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${now.day} ${months[now.month - 1]} ${now.year}';
   }

@@ -106347,7 +106347,7 @@ $1(a){return!1},
 $S:137}
 A.uN.prototype={
 ab(){var s=$.aG()
-return new A.M7(new A.bE(null,t.am),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),A.b(["Inderlok","Tri Nagar","J.J Colony","Lawerence Road","Nehru Nagar","Azad Colony"],t.s),null,null)}}
+return new A.M7(new A.bE(null,t.am),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),A.b(["Inderlok","Tri Nagar","Ashok Vihar","Lawrence Road","Nehru Nagar","Azad Colony"],t.s),null,null)}}
 A.M7.prototype={
 au(){var s,r,q=this,p=null
 q.aL()
@@ -106807,7 +106807,7 @@ s.aW$=null
 s.aC()}}
 A.vw.prototype={
 ab(){var s=$.aG()
-return new A.NI(new A.bE(null,t.am),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),A.b(["Inderlok","Tri Nagar","J.J Colony","Lawerence Road","Nehru Nagar","Azad Colony"],t.s))}}
+return new A.NI(new A.bE(null,t.am),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),new A.ff(B.bk,s),A.b(["Inderlok","Tri Nagar","Ashok Vihar","Lawrence Road","Nehru Nagar","Azad Colony"],t.s))}}
 A.NI.prototype={
 l(){var s=this,r=s.e,q=r.a2$=$.aG()
 r.O$=0

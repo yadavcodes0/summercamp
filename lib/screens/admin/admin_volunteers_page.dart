@@ -23,6 +23,14 @@ class _AdminVolunteersPageState extends State<AdminVolunteersPage> {
     }).toList();
   }
 
+  /// Count how many children were marked by a given volunteer phone
+  int _getEntryCount(AdminDashboardProvider provider, String? phone) {
+    if (phone == null || phone.isEmpty) return 0;
+    return provider.children
+        .where((c) => c.markedByVolunteerPhone == phone)
+        .length;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminDashboardProvider>();
@@ -96,8 +104,11 @@ class _AdminVolunteersPageState extends State<AdminVolunteersPage> {
                 _col('Phone'),
                 _col('Email'),
                 _col('Address'),
+                _col('Entries Marked'),
               ],
               rows: filtered.map((v) {
+                final phone = v['phone_number'] as String?;
+                final entryCount = _getEntryCount(provider, phone);
                 return DataRow(
                   cells: [
                     DataCell(
@@ -137,6 +148,30 @@ class _AdminVolunteersPageState extends State<AdminVolunteersPage> {
                       Text(
                         v['address'] ?? '—',
                         style: GoogleFonts.inter(fontSize: 13),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: entryCount > 0
+                              ? const Color(0xFF43A047).withOpacity(0.1)
+                              : const Color(0xFFF5F5FA),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '$entryCount',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: entryCount > 0
+                                ? const Color(0xFF43A047)
+                                : const Color(0xFF999999),
+                          ),
+                        ),
                       ),
                     ),
                   ],

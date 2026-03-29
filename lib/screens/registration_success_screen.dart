@@ -11,6 +11,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:summer_camp/providers/child_provider.dart';
+import 'package:summer_camp/providers/language_provider.dart';
 import 'package:summer_camp/screens/home_screen.dart';
 import 'package:summer_camp/services/file_saver.dart';
 
@@ -22,25 +23,51 @@ class RegistrationSuccessScreen extends StatefulWidget {
       _RegistrationSuccessScreenState();
 }
 
-class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
+class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen>
+    with SingleTickerProviderStateMixin {
   final _screenshotController = ScreenshotController();
+  late AnimationController _anim;
+  late Animation<double> _scaleAnim;
+  late Animation<double> _fadeAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _anim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _scaleAnim = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: _anim, curve: Curves.elasticOut),
+    );
+    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _anim, curve: const Interval(0.0, 0.5, curve: Curves.easeIn)),
+    );
+    _anim.forward();
+  }
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
 
   Future<void> _shareQr(String childId) async {
     final imageBytes = await _screenshotController.capture();
     if (imageBytes == null) return;
 
     if (kIsWeb) {
-      await FileSaver.saveFileBytes('SummerCamp_QR_$childId.png', imageBytes);
+      await FileSaver.saveFileBytes('KidsWorkshop_QR_$childId.png', imageBytes);
       return;
     }
 
     final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/qr_$childId.png');
+    final file = File('${tempDir.path}/KidsWorkshop_QR_$childId.png');
     await file.writeAsBytes(imageBytes);
 
     await Share.shareXFiles([
       XFile(file.path),
-    ], text: 'My Summer Camp 2026 QR Code - $childId');
+    ], text: 'My Kids Workshop 2026 QR Code - $childId');
   }
 
   Future<void> _saveToGallery(String childId) async {
@@ -55,7 +82,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
     }
 
     if (kIsWeb) {
-      await FileSaver.saveFileBytes('SummerCamp_QR_$childId.png', imageBytes);
+      await FileSaver.saveFileBytes('KidsWorkshop_QR_$childId.png', imageBytes);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -68,11 +95,10 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
     }
 
     try {
-      // Save to a temp file first, then use Gal to save to gallery
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/SummerCamp_QR_$childId.png');
+      final file = File('${tempDir.path}/KidsWorkshop_QR_$childId.png');
       await file.writeAsBytes(imageBytes);
-      await Gal.putImage(file.path, album: 'SummerCamp');
+      await Gal.putImage(file.path, album: 'KidsWorkshop');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -97,6 +123,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
   @override
   Widget build(BuildContext context) {
     final child = context.watch<ChildProvider>().registeredChild;
+    final lang = context.watch<LanguageProvider>();
 
     if (child == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -105,170 +132,256 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Registration Successful'),
+        title: Text(lang.t('reg_success_title')),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Column(
-          children: [
-            // Success Banner
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF43A047).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFF43A047).withOpacity(0.3),
+      body: FadeTransition(
+        opacity: _fadeAnim,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            children: [
+              // Success Banner
+              ScaleTransition(
+                scale: _scaleAnim,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF43A047).withOpacity(0.12),
+                        const Color(0xFF66BB6A).withOpacity(0.06),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFF43A047).withOpacity(0.25),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF43A047).withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Text('✅', style: TextStyle(fontSize: 32)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        lang.t('reg_complete'),
+                        style: GoogleFonts.splineSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF2E7D32),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        lang.t('show_qr'),
+                        style: GoogleFonts.splineSans(
+                          fontSize: 13,
+                          color: const Color(0xFF555555),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              child: Column(
-                children: [
-                  const Text('✅', style: TextStyle(fontSize: 40)),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Registration Complete!',
-                    style: GoogleFonts.splineSans(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF2E7D32),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Show this QR code at camp entry',
-                    style: GoogleFonts.splineSans(
-                      fontSize: 13,
-                      color: const Color(0xFF555555),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // Child Info
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFEEE6DF)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _InfoRow(label: 'Child Name', value: child.childName),
-                  const Divider(height: 20),
-                  _InfoRow(label: 'Camp ID', value: child.childId),
-                  const Divider(height: 20),
-                  _InfoRow(label: 'Age', value: '${child.age} years'),
-                  const Divider(height: 20),
-                  _InfoRow(label: 'Parent', value: child.parentName),
-                  const Divider(height: 20),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // QR Code
-            Screenshot(
-              controller: _screenshotController,
-              child: Container(
-                padding: const EdgeInsets.all(24),
+              // Child Info
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: const Color(0xFFEEE6DF)),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFf97b06).withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    QrImageView(
-                      data: child.childId,
-                      version: QrVersions.auto,
-                      size: 220,
-                      eyeStyle: const QrEyeStyle(
-                        eyeShape: QrEyeShape.square,
-                        color: Color(0xFF1A1A1A),
-                      ),
-                      dataModuleStyle: const QrDataModuleStyle(
-                        dataModuleShape: QrDataModuleShape.square,
-                        color: Color(0xFF1A1A1A),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      child.childId,
-                      style: GoogleFonts.splineSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFf97b06),
-                        letterSpacing: 1.5,
-                      ),
-                    ),
+                    _InfoRow(label: lang.t('child_name_label'), value: child.childName),
+                    const Divider(height: 20, color: Color(0xFFF0EBE6)),
+                    _InfoRow(label: lang.t('workshop_id'), value: child.childId),
+                    const Divider(height: 20, color: Color(0xFFF0EBE6)),
+                    _InfoRow(label: lang.t('age_label'), value: '${child.age} ${lang.t('years')}'),
+                    const Divider(height: 20, color: Color(0xFFF0EBE6)),
+                    _InfoRow(label: lang.t('parent_label'), value: child.parentName),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 28),
+              const SizedBox(height: 24),
 
-            // Download to Gallery Button
-            ElevatedButton.icon(
-              onPressed: () => _saveToGallery(child.childId),
-              icon: const Icon(Icons.download_rounded),
-              label: const Text('Save to Gallery'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 54),
-                backgroundColor: const Color(0xFF43A047),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              // QR Code
+              Screenshot(
+                controller: _screenshotController,
+                child: Container(
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: const Color(0xFFEEE6DF)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFf97b06).withOpacity(0.12),
+                        blurRadius: 24,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      QrImageView(
+                        data: child.childId,
+                        version: QrVersions.auto,
+                        size: 220,
+                        eyeStyle: const QrEyeStyle(
+                          eyeShape: QrEyeShape.square,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                        dataModuleStyle: const QrDataModuleStyle(
+                          dataModuleShape: QrDataModuleShape.square,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFf97b06).withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          child.childId,
+                          style: GoogleFonts.splineSans(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFf97b06),
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 14),
+              const SizedBox(height: 28),
 
-            // Share Button
-            ElevatedButton.icon(
-              onPressed: () => _shareQr(child.childId),
-              icon: const Icon(Icons.share_rounded),
-              label: const Text('Share QR Code'),
-            ),
-
-            const SizedBox(height: 14),
-
-            // Home Button
-            OutlinedButton(
-              onPressed: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
-                (route) => false,
+              // Download Button
+              _PremiumButton(
+                label: lang.t('save_gallery'),
+                icon: Icons.download_rounded,
+                color: const Color(0xFF43A047),
+                onTap: () => _saveToGallery(child.childId),
               ),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 54),
-                side: const BorderSide(color: Color(0xFFf97b06)),
-                foregroundColor: const Color(0xFFf97b06),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+
+              const SizedBox(height: 14),
+
+              // Share Button
+              _PremiumButton(
+                label: lang.t('share_qr'),
+                icon: Icons.share_rounded,
+                color: const Color(0xFFf97b06),
+                onTap: () => _shareQr(child.childId),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Home Button
+              OutlinedButton(
+                onPressed: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false,
                 ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 54),
+                  side: const BorderSide(color: Color(0xFFf97b06)),
+                  foregroundColor: const Color(0xFFf97b06),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: Text(lang.t('back_home')),
               ),
-              child: const Text('Back to Home'),
-            ),
 
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PremiumButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _PremiumButton({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 54,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(
+          colors: [color, color.withOpacity(0.85)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, color: Colors.white),
+        label: Text(
+          label,
+          style: GoogleFonts.splineSans(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       ),
     );

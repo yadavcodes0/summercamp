@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:summer_camp/providers/language_provider.dart';
 import 'package:summer_camp/providers/volunteer_provider.dart';
 
 class VolunteerSignupScreen extends StatefulWidget {
@@ -19,6 +20,16 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   final _addressCtrl = TextEditingController();
   // New field
   String _gender = 'Male';
+  String? _branchName;
+
+  final List<String> _branches = [
+    'Inderlok',
+    'Tri Nagar',
+    'J.J Colony',
+    'Lawerence Road',
+    'Nehru Nagar',
+    'Azad Colony',
+  ];
 
   @override
   void dispose() {
@@ -41,22 +52,23 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
       phone: _phoneCtrl.text.trim(),
       address: _addressCtrl.text.trim(),
       gender: _gender,
+      branchName: _branchName ?? '',
     );
 
     if (!mounted) return;
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registration successful! You can now log in.'),
-          backgroundColor: Color(0xFF43A047),
+        SnackBar(
+          content: Text(context.read<LanguageProvider>().t('reg_success')),
+          backgroundColor: const Color(0xFF43A047),
         ),
       );
       Navigator.pop(context); // Go back to login screen
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.error ?? 'Registration failed'),
+          content: Text(provider.error ?? context.read<LanguageProvider>().t('reg_failed')),
           backgroundColor: Colors.red,
         ),
       );
@@ -66,10 +78,11 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = context.watch<VolunteerProvider>().isLoading;
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Volunteer Signup'),
+        title: Text(lang.t('volunteer_signup')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: () => Navigator.pop(context),
@@ -95,7 +108,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Join our team! Fill in your details to register as a camp volunteer. Note that password will be generated automatically.',
+                        lang.t('volunteer_header'),
                         style: GoogleFonts.splineSans(
                           fontSize: 13,
                           color: const Color(0xFF555555),
@@ -109,16 +122,16 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
 
               const SizedBox(height: 28),
 
-              _SectionLabel('Personal Information'),
+              _SectionLabel(lang.t('personal_info')),
               const SizedBox(height: 12),
 
               _AppTextField(
                 controller: _fullNameCtrl,
-                label: 'Full Name',
-                hint: 'e.g. Rahul Sharma',
+                label: lang.t('full_name'),
+                hint: lang.t('full_name_hint'),
                 icon: Icons.person_outline,
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
+                    v == null || v.trim().isEmpty ? lang.t('required') : null,
               ),
               const SizedBox(height: 14),
 
@@ -129,15 +142,15 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     flex: 1,
                     child: _AppTextField(
                       controller: _ageCtrl,
-                      label: 'Age',
-                      hint: 'e.g. 25',
+                      label: lang.t('age'),
+                      hint: lang.t('age_hint'),
                       icon: Icons.cake_outlined,
                       keyboardType: TextInputType.number,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
+                        if (v == null || v.trim().isEmpty) return lang.t('required');
                         final n = int.tryParse(v.trim());
                         if (n == null || n < 16) {
-                          return 'Must be 16+';
+                          return lang.t('age_16');
                         }
                         return null;
                       },
@@ -148,13 +161,13 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     flex: 2,
                     child: _AppTextField(
                       controller: _emailCtrl,
-                      label: 'Email',
-                      hint: 'e.g. rahul@email.com',
+                      label: lang.t('email'),
+                      hint: lang.t('email_hint'),
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (!v.contains('@')) return 'Invalid email';
+                        if (v == null || v.trim().isEmpty) return lang.t('required');
+                        if (!v.contains('@')) return lang.t('invalid_email');
                         return null;
                       },
                     ),
@@ -163,21 +176,35 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
               ),
               const SizedBox(height: 18),
 
-              _SectionLabel('Gender'),
+              _SectionLabel('Branch Name'),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: _branchName,
+                decoration: InputDecoration(
+                  labelText: 'Select Branch',
+                  prefixIcon: const Icon(Icons.business_outlined, color: Color(0xFF43A047), size: 20),
+                ),
+                items: _branches.map((b) => DropdownMenuItem(value: b, child: Text(b))).toList(),
+                onChanged: (v) => setState(() => _branchName = v),
+                validator: (v) => v == null ? lang.t('required') : null,
+              ),
+              const SizedBox(height: 18),
+
+              _SectionLabel(lang.t('gender')),
               const SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
                 child: SegmentedButton<String>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: 'Male',
-                      label: Text('Male'),
-                      icon: Icon(Icons.male),
+                      label: Text(lang.t('male')),
+                      icon: const Icon(Icons.male),
                     ),
                     ButtonSegment(
                       value: 'Female',
-                      label: Text('Female'),
-                      icon: Icon(Icons.female),
+                      label: Text(lang.t('female')),
+                      icon: const Icon(Icons.female),
                     ),
                   ],
                   selected: {_gender},
@@ -199,29 +226,29 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
 
               _AppTextField(
                 controller: _addressCtrl,
-                label: 'Residential Address',
-                hint: 'e.g. Block A, Rohini, Delhi',
+                label: lang.t('residential_address'),
+                hint: lang.t('residential_hint'),
                 icon: Icons.location_on_outlined,
                 maxLines: 2,
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
+                    v == null || v.trim().isEmpty ? lang.t('required') : null,
               ),
 
               const SizedBox(height: 24),
-              _SectionLabel('Phone Verification'),
+              _SectionLabel(lang.t('phone_verification')),
               const SizedBox(height: 12),
 
               // ── Phone Number ──
               _AppTextField(
                 controller: _phoneCtrl,
-                label: 'Phone Number',
-                hint: 'e.g. 9876543210',
+                label: lang.t('phone'),
+                hint: lang.t('phone_hint'),
                 icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Required';
+                  if (v == null || v.trim().isEmpty) return lang.t('required');
                   if (v.trim().length < 10) {
-                    return 'Enter a valid phone number';
+                    return lang.t('valid_phone');
                   }
                   return null;
                 },
@@ -244,7 +271,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                           strokeWidth: 2.5,
                         ),
                       )
-                    : const Text('Sign Up'),
+                    : Text(lang.t('signup_btn')),
               ),
 
               const SizedBox(height: 24),

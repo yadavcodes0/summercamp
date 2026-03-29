@@ -1,5 +1,5 @@
 name: summer_camp
-description: "Summer Camp QR Registration & Entry Management System"
+description: "Kids Workshop QR Registration & Entry Management System"
 publish_to: 'none'
 
 version: 1.0.1+2
@@ -57,7 +57,7 @@ flutter:
   assets:
     - assets/images/banner.png
     - assets/images/banner2.png
-    - assets/images/icon.png
+    - assets/images/icon2.png
 
 flutter_launcher_icons:
   android: true

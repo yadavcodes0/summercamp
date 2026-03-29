@@ -30,6 +30,7 @@ class VolunteerService {
     required String phone,
     required String address,
     required String gender,
+    required String branchName,
   }) async {
     try {
       // 1. Check if phone is already registered
@@ -51,6 +52,7 @@ class VolunteerService {
         'phone_number': phone,
         'address': address,
         'gender': gender,
+        'branch_name': branchName,
       });
       return true;
     } catch (e) {

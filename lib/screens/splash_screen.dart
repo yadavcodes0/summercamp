@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:summer_camp/providers/language_provider.dart';
 import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/screens/admin_dashboard_screen.dart';
 import 'package:summer_camp/screens/home_screen.dart';
+import 'package:summer_camp/screens/language_selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,120 +15,492 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnim;
-  late Animation<double> _scaleAnim;
+    with TickerProviderStateMixin {
+  late AnimationController _mainController;
+  late AnimationController _pulseController;
+  late AnimationController _shimmerController;
+
+  // Staggered animations
+  late Animation<double> _iconScale;
+  late Animation<double> _iconFade;
+  late Animation<Offset> _titleSlide;
+  late Animation<double> _titleFade;
+  late Animation<Offset> _yearSlide;
+  late Animation<double> _yearFade;
+  late Animation<Offset> _subtitleSlide;
+  late Animation<double> _subtitleFade;
+  late Animation<double> _loaderFade;
+  late Animation<double> _bgCirclesFade;
+
+  // Pulse glow
+  late Animation<double> _pulseAnim;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _fadeAnim = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
-    _scaleAnim = Tween<double>(
-      begin: 0.7,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
-    _controller.forward();
 
+    // ── Main stagger controller (1.8s) ──
+    _mainController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    );
+
+    // ── Pulse glow loop ──
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.3, end: 0.7).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    // ── Shimmer loader ──
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+
+    // ── Background circles fade ──
+    _bgCirclesFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _mainController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+      ),
+    );
+
+    // ── Icon: scale + fade (0% → 40%) ──
+    _iconScale = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _mainController,
+        curve: const Interval(0.0, 0.45, curve: Curves.elasticOut),
+      ),
+    );
+    _iconFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _mainController,
+        curve: const Interval(0.0, 0.3, curve: Curves.easeIn),
+      ),
+    );
+
+    // ── Title: slide-up + fade (25% → 55%) ──
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _mainController,
+            curve: const Interval(0.25, 0.55, curve: Curves.easeOutCubic),
+          ),
+        );
+    _titleFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _mainController,
+        curve: const Interval(0.25, 0.50, curve: Curves.easeIn),
+      ),
+    );
+
+    // ── Year badge: slide-up + fade (40% → 65%) ──
+    _yearSlide = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _mainController,
+            curve: const Interval(0.40, 0.65, curve: Curves.easeOutCubic),
+          ),
+        );
+    _yearFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _mainController,
+        curve: const Interval(0.40, 0.60, curve: Curves.easeIn),
+      ),
+    );
+
+    // ── Subtitle: slide-up + fade (55% → 80%) ──
+    _subtitleSlide =
+        Tween<Offset>(begin: const Offset(0, 0.4), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _mainController,
+            curve: const Interval(0.55, 0.80, curve: Curves.easeOutCubic),
+          ),
+        );
+    _subtitleFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _mainController,
+        curve: const Interval(0.55, 0.75, curve: Curves.easeIn),
+      ),
+    );
+
+    // ── Loader bar: fade (70% → 90%) ──
+    _loaderFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _mainController,
+        curve: const Interval(0.70, 0.90, curve: Curves.easeIn),
+      ),
+    );
+
+    _mainController.forward();
+
+    // ── Navigation ──
     final provider = context.read<VolunteerProvider>();
+    final langProvider = context.read<LanguageProvider>();
     Future.wait([
-      Future.delayed(const Duration(seconds: 3)),
+      Future.delayed(const Duration(seconds: 4)),
       provider.initializationDone,
     ]).then((_) {
       if (mounted) {
+        Widget destination;
         if (provider.isLoggedIn) {
-          Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
-              pageBuilder: (_, _, _) => const AdminDashboardScreen(),
-              transitionDuration: const Duration(milliseconds: 600),
-              transitionsBuilder: (_, animation, _, child) =>
-                  FadeTransition(opacity: animation, child: child),
-            ),
-          );
+          destination = const AdminDashboardScreen();
+        } else if (langProvider.hasSelectedLanguage) {
+          destination = const HomeScreen();
         } else {
-          Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
-              pageBuilder: (_, _, _) => const HomeScreen(),
-              transitionDuration: const Duration(milliseconds: 600),
-              transitionsBuilder: (_, animation, _, child) =>
-                  FadeTransition(opacity: animation, child: child),
-            ),
-          );
+          destination = const LanguageSelectionScreen();
         }
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (_, _, _) => destination,
+            transitionDuration: const Duration(milliseconds: 600),
+            transitionsBuilder: (_, animation, _, child) =>
+                FadeTransition(opacity: animation, child: child),
+          ),
+        );
       }
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _mainController.dispose();
+    _pulseController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFf97b06),
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnim,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFF8C00), // Deep orange
+              Color(0xFFf97b06), // Brand orange
+              Color(0xFFE85D04), // Warm amber
+              Color(0xFFD14600), // Rich burnt orange
+            ],
+            stops: [0.0, 0.35, 0.7, 1.0],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // ── Decorative background circles ──
+            _buildBackgroundCircles(),
+
+            // ── Main content ──
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ── Glowing Icon ──
+                    _buildGlowingIcon(),
+
+                    const SizedBox(height: 36),
+
+                    // ── Title ──
+                    SlideTransition(
+                      position: _titleSlide,
+                      child: FadeTransition(
+                        opacity: _titleFade,
+                        child: Text(
+                          'Kids Workshop',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.splineSans(
+                            fontSize: 34,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                            height: 1.1,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // ── Year Badge ──
+                    SlideTransition(
+                      position: _yearSlide,
+                      child: FadeTransition(
+                        opacity: _yearFade,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.18),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            '✦  2 0 2 6  ✦',
+                            style: GoogleFonts.splineSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              letterSpacing: 3,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 22),
+
+                    // ── Subtitle / Location ──
+                    SlideTransition(
+                      position: _subtitleSlide,
+                      child: FadeTransition(
+                        opacity: _subtitleFade,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.location_on_rounded,
+                                size: 14,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'Sant Nirankari Satsang Bhawan, Inderlok',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.splineSans(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.7),
+                                    letterSpacing: 0.5,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 48),
+
+                    // ── Shimmer Loading Bar ──
+                    FadeTransition(
+                      opacity: _loaderFade,
+                      child: _buildShimmerLoader(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Glowing animated icon ──
+  Widget _buildGlowingIcon() {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_mainController, _pulseController]),
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _iconFade,
           child: ScaleTransition(
-            scale: _scaleAnim,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            scale: _iconScale,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                // Sun / Camp Icon
+                // Outer pulsing glow
+                Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withOpacity(_pulseAnim.value * 0.3),
+                        blurRadius: 40,
+                        spreadRadius: 8,
+                      ),
+                    ],
+                  ),
+                ),
+                // Outer ring
+                Container(
+                  width: 130,
+                  height: 130,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.15),
+                      width: 2,
+                    ),
+                  ),
+                ),
+                // Inner ring
                 Container(
                   width: 110,
                   height: 110,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.25),
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                // Main icon circle
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.18),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.4),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: const Center(
-                    child: Text('⛺', style: TextStyle(fontSize: 56)),
-                  ),
-                ),
-                const SizedBox(height: 28),
-                Text(
-                  'Summer Camp',
-                  style: GoogleFonts.splineSans(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '2026',
-                  style: GoogleFonts.splineSans(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white.withOpacity(0.85),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Satsang Summer Camp',
-                  style: GoogleFonts.splineSans(
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.75),
-                    letterSpacing: 1.2,
+                    child: Text('🎨', style: TextStyle(fontSize: 44)),
                   ),
                 ),
               ],
             ),
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  // ── Decorative floating circles ──
+  Widget _buildBackgroundCircles() {
+    return FadeTransition(
+      opacity: _bgCirclesFade,
+      child: Stack(
+        children: [
+          Positioned(top: -60, right: -40, child: _circle(180, 0.06)),
+          Positioned(bottom: -80, left: -50, child: _circle(220, 0.05)),
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.3,
+            left: -30,
+            child: _circle(80, 0.08),
+          ),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.25,
+            right: -20,
+            child: _circle(60, 0.07),
+          ),
+          Positioned(
+            top: 100,
+            left: MediaQuery.of(context).size.width * 0.6,
+            child: _circle(40, 0.1),
+          ),
+        ],
       ),
     );
   }
+
+  Widget _circle(double size, double opacity) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withOpacity(opacity),
+      ),
+    );
+  }
+
+  // ── Shimmer loading bar ──
+  Widget _buildShimmerLoader() {
+    return SizedBox(
+      width: 160,
+      height: 4,
+      child: AnimatedBuilder(
+        animation: _shimmerController,
+        builder: (context, _) {
+          return CustomPaint(
+            painter: _ShimmerBarPainter(progress: _shimmerController.value),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ShimmerBarPainter extends CustomPainter {
+  final double progress;
+  _ShimmerBarPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bgPaint = Paint()
+      ..color = Colors.white.withOpacity(0.15)
+      ..style = PaintingStyle.fill;
+
+    final rRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      const Radius.circular(4),
+    );
+    canvas.drawRRect(rRect, bgPaint);
+
+    // Shimmer highlight
+    final shimmerWidth = size.width * 0.4;
+    final shimmerX = (progress * (size.width + shimmerWidth)) - shimmerWidth;
+
+    final shimmerPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Colors.white.withOpacity(0.0),
+          Colors.white.withOpacity(0.5),
+          Colors.white.withOpacity(0.0),
+        ],
+      ).createShader(Rect.fromLTWH(shimmerX, 0, shimmerWidth, size.height));
+
+    canvas.save();
+    canvas.clipRRect(rRect);
+    canvas.drawRect(
+      Rect.fromLTWH(shimmerX, 0, shimmerWidth, size.height),
+      shimmerPaint,
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _ShimmerBarPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }

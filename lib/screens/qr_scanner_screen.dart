@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
+import 'package:summer_camp/providers/language_provider.dart';
 import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/screens/child_verification_screen.dart';
 import 'package:summer_camp/screens/home_screen.dart';
@@ -56,8 +57,8 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     } else {
       setState(() => _isProcessing = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Child not found. Invalid QR code.'),
+        SnackBar(
+          content: Text(context.read<LanguageProvider>().t('child_not_found')),
           backgroundColor: Colors.red,
         ),
       );
@@ -66,12 +67,13 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          'Scan QR Code',
+          lang.t('scan_qr'),
           style: GoogleFonts.splineSans(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -136,7 +138,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
                     const CircularProgressIndicator(color: Color(0xFFf97b06))
                   else
                     Text(
-                      'Align the QR code within the frame',
+                      lang.t('align_qr'),
                       style: GoogleFonts.splineSans(
                         color: Colors.white,
                         fontSize: 14,

@@ -6,7 +6,7 @@ class ChildService {
   final _client = Supabase.instance.client;
   final _uuid = const Uuid();
 
-  /// Generates a unique camp ID in the format SC2026-XXXX
+  /// Generates a unique camp ID in the format KW2026-XXXX
   Future<String> _generateChildId() async {
     final result = await _client
         .from('children')
@@ -15,15 +15,15 @@ class ChildService {
         .limit(1);
 
     if (result.isEmpty) {
-      return 'SC2026-0001';
+      return 'KW2026-0001';
     }
 
     final lastId = result.first['child_id'] as String;
-    // Extract number part: SC2026-0001 → 1
+    // Extract number part: SC2026-0001 or KW2026-0001 → 1
     final parts = lastId.split('-');
     final lastNum = int.tryParse(parts.last) ?? 0;
     final nextNum = lastNum + 1;
-    return 'SC2026-${nextNum.toString().padLeft(4, '0')}';
+    return 'KW2026-${nextNum.toString().padLeft(4, '0')}';
   }
 
   /// Register a new child
@@ -34,6 +34,7 @@ class ChildService {
     required String phone,
     required String address,
     required String gender,
+    required String branchName,
   }) async {
     final childId = await _generateChildId();
 
@@ -46,6 +47,7 @@ class ChildService {
       'phone': phone,
       'address': address,
       'gender': gender,
+      'branch_name': branchName,
       'entry_status': false,
     };
 
@@ -78,12 +80,21 @@ class ChildService {
     return ChildModel.fromJson(response);
   }
 
-  /// Mark a child as entered
-  Future<ChildModel> markEntry(String childId) async {
+  /// Mark a child as entered, recording which volunteer did it
+  Future<ChildModel> markEntry(
+    String childId, {
+    required String volunteerName,
+    required String volunteerPhone,
+  }) async {
     final now = DateTime.now().toIso8601String();
     final response = await _client
         .from('children')
-        .update({'entry_status': true, 'entry_time': now})
+        .update({
+          'entry_status': true,
+          'entry_time': now,
+          'marked_by_volunteer_name': volunteerName,
+          'marked_by_volunteer_phone': volunteerPhone,
+        })
         .eq('child_id', childId)
         .select()
         .single();

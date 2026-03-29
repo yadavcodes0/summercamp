@@ -9,6 +9,9 @@ class ChildModel {
   final String? gender;
   final bool entryStatus;
   final DateTime? entryTime;
+  final String? branchName;
+  final String? markedByVolunteerName;
+  final String? markedByVolunteerPhone;
   final DateTime createdAt;
 
   ChildModel({
@@ -20,8 +23,11 @@ class ChildModel {
     required this.phone,
     required this.address,
     this.gender,
+    this.branchName,
     required this.entryStatus,
     this.entryTime,
+    this.markedByVolunteerName,
+    this.markedByVolunteerPhone,
     required this.createdAt,
   });
 
@@ -35,10 +41,13 @@ class ChildModel {
       phone: json['phone'] as String,
       address: json['address'] as String,
       gender: json['gender'] as String?,
+      branchName: json['branch_name'] as String?,
       entryStatus: json['entry_status'] as bool? ?? false,
       entryTime: json['entry_time'] != null
           ? DateTime.parse(json['entry_time'] as String)
           : null,
+      markedByVolunteerName: json['marked_by_volunteer_name'] as String?,
+      markedByVolunteerPhone: json['marked_by_volunteer_phone'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -51,10 +60,16 @@ class ChildModel {
       'phone': phone,
       'address': address,
       'gender': gender,
+      'branch_name': branchName,
     };
   }
 
-  ChildModel copyWith({bool? entryStatus, DateTime? entryTime}) {
+  ChildModel copyWith({
+    bool? entryStatus,
+    DateTime? entryTime,
+    String? markedByVolunteerName,
+    String? markedByVolunteerPhone,
+  }) {
     return ChildModel(
       id: id,
       childId: childId,
@@ -64,8 +79,11 @@ class ChildModel {
       phone: phone,
       address: address,
       gender: gender,
+      branchName: branchName,
       entryStatus: entryStatus ?? this.entryStatus,
       entryTime: entryTime ?? this.entryTime,
+      markedByVolunteerName: markedByVolunteerName ?? this.markedByVolunteerName,
+      markedByVolunteerPhone: markedByVolunteerPhone ?? this.markedByVolunteerPhone,
       createdAt: createdAt,
     );
   }

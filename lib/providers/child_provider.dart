@@ -29,6 +29,7 @@ class ChildProvider extends ChangeNotifier {
     required String phone,
     required String address,
     required String gender,
+    required String branchName,
   }) async {
     _state = ChildProviderState.loading;
     _error = null;
@@ -42,6 +43,7 @@ class ChildProvider extends ChangeNotifier {
         phone: phone,
         address: address,
         gender: gender,
+        branchName: branchName,
       );
       _state = ChildProviderState.success;
       notifyListeners();
@@ -92,10 +94,18 @@ class ChildProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> markEntry(String campId) async {
+  Future<bool> markEntry(
+    String campId, {
+    required String volunteerName,
+    required String volunteerPhone,
+  }) async {
     try {
-      debugPrint('Attempting to mark entry for campId: $campId');
-      _scannedChild = await _service.markEntry(campId);
+      debugPrint('Attempting to mark entry for campId: $campId by volunteer: $volunteerName');
+      _scannedChild = await _service.markEntry(
+        campId,
+        volunteerName: volunteerName,
+        volunteerPhone: volunteerPhone,
+      );
       debugPrint('Mark entry success: ${_scannedChild?.childId}');
       notifyListeners();
       return true;

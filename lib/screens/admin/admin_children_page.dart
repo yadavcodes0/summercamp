@@ -39,10 +39,10 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
 
   void _exportCsv(List<ChildModel> data) {
     final header =
-        'Child Name,Age,Gender,Camp ID,Parent,Phone,Address,Entry Status,Entry Time\n';
+        'Child Name,Age,Gender,Branch,Camp ID,Parent,Phone,Address,Entry Status,Entry Time,Marked By\n';
     final rows = data
         .map((c) {
-          return '${c.childName},${c.age},${c.gender ?? ''},${c.childId},${c.parentName},${c.phone},${c.address},${c.entryStatus ? 'Entered' : 'Not Entered'},${c.entryTime ?? ''}';
+          return '${c.childName},${c.age},${c.gender ?? ''},${c.branchName ?? ''},${c.childId},${c.parentName},${c.phone},${c.address},${c.entryStatus ? 'Entered' : 'Not Entered'},${c.entryTime ?? ''},${c.markedByVolunteerName ?? ''}';
         })
         .join('\n');
 
@@ -155,11 +155,13 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
                 _col('Child Name'),
                 _col('Age'),
                 _col('Gender'),
+                _col('Branch'),
                 _col('Camp ID'),
                 _col('Parent'),
                 _col('Phone'),
                 _col('Status'),
                 _col('Entry Time'),
+                _col('Marked By'),
               ],
               rows: filtered.map((c) {
                 final time = c.entryTime;
@@ -188,6 +190,12 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
                     ),
                     DataCell(
                       Text(
+                        c.branchName ?? '—',
+                        style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: const Color(0xFF66BB6A)),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
                         c.childId,
                         style: GoogleFonts.inter(
                           fontSize: 13,
@@ -208,6 +216,16 @@ class _AdminChildrenPageState extends State<AdminChildrenPage> {
                     DataCell(_StatusBadge(entered: c.entryStatus)),
                     DataCell(
                       Text(timeStr, style: GoogleFonts.inter(fontSize: 13)),
+                    ),
+                    DataCell(
+                      Text(
+                        c.markedByVolunteerName ?? '—',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: c.markedByVolunteerName != null ? FontWeight.w500 : FontWeight.normal,
+                          color: c.markedByVolunteerName != null ? const Color(0xFF5C6BC0) : const Color(0xFF999999),
+                        ),
+                      ),
                     ),
                   ],
                 );

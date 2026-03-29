@@ -49,3 +49,4 @@ android/app/google-services.json
 android/key.properties
 lib/firebase_options.dart
 .vercel
+.env*.local

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
+import 'package:summer_camp/providers/language_provider.dart';
 import 'package:summer_camp/screens/children_list_screen.dart';
 import 'package:summer_camp/services/auth_service.dart';
 
@@ -65,15 +66,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         );
       } else if (success && provider.childrenList.isEmpty) {
          ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Verification successful, but no children found for this number.'),
-            backgroundColor: Color(0xFF555555),
+          SnackBar(
+            content: Text(context.read<LanguageProvider>().t('otp_no_children')),
+            backgroundColor: const Color(0xFF555555),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(provider.error ?? 'Something went wrong fetching data.'),
+            content: Text(provider.error ?? context.read<LanguageProvider>().t('error')),
             backgroundColor: Colors.red,
           ),
         );
@@ -82,7 +83,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.message ?? 'Invalid OTP code.'),
+          content: Text(e.message ?? context.read<LanguageProvider>().t('invalid_otp')),
           backgroundColor: Colors.red,
         ),
       );
@@ -90,7 +91,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
        if (!mounted) return;
        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text('${context.read<LanguageProvider>().t('error')}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -103,9 +104,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verify Phone'),
+        title: Text(lang.t('verify_phone')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: () => Navigator.pop(context),
@@ -133,7 +135,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Enter OTP',
+                lang.t('enter_otp'),
                 style: GoogleFonts.splineSans(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -143,7 +145,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'We sent a 6-digit code to ${widget.phoneNumber}',
+                '${lang.t('otp_sent')} ${widget.phoneNumber}',
                 style: GoogleFonts.splineSans(
                   fontSize: 14,
                   color: const Color(0xFF888888),
@@ -157,15 +159,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 controller: _otpCtrl,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
-                decoration: const InputDecoration(
-                  labelText: '6-digit Code',
-                  hintText: '123456',
-                  prefixIcon: Icon(Icons.lock_outline, color: Color(0xFFf97b06)),
+                decoration: InputDecoration(
+                  labelText: lang.t('otp_label'),
+                  hintText: lang.t('otp_hint'),
+                  prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFf97b06)),
                   counterText: "",
                 ),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Required';
-                  if (v.trim().length != 6) return 'Enter 6 digits';
+                  if (v == null || v.trim().isEmpty) return lang.t('required');
+                  if (v.trim().length != 6) return lang.t('otp_length');
                   return null;
                 },
               ),
@@ -183,7 +185,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           strokeWidth: 2.5,
                         ),
                       )
-                    : const Text('Verify & Continue'),
+                    : Text(lang.t('verify_continue')),
               ),
             ],
           ),

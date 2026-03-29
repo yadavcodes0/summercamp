@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:summer_camp/config/supabase_config.dart';
 import 'package:summer_camp/firebase_options.dart';
 import 'package:summer_camp/providers/admin_dashboard_provider.dart';
+import 'package:summer_camp/providers/language_provider.dart';
 import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/providers/child_provider.dart';
 import 'package:summer_camp/screens/admin/admin_layout.dart';
@@ -66,7 +67,7 @@ class SummerCampApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AdminDashboardProvider()),
       ],
       child: MaterialApp(
-        title: 'Summer Camp Admin',
+        title: 'Kids Workshop Admin',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
@@ -104,9 +105,10 @@ class SummerCampApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ChildProvider()),
         ChangeNotifierProvider(create: (_) => VolunteerProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
       ],
       child: MaterialApp(
-        title: 'Summer Camp 2026',
+        title: 'Kids Workshop 2026',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,

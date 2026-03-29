@@ -1,4 +1,4 @@
-// Basic widget smoke test for the Summer Camp app.
+// Basic widget smoke test for the Kids Workshop app.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:summer_camp/main.dart';

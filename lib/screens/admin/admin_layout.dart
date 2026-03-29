@@ -81,7 +81,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Summer Camp',
+                          'Kids Workshop',
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -180,7 +180,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                     vertical: 20,
                   ),
                   child: Text(
-                    '© 2026 Summer Camp',
+                    '© 2026 Kids Workshop',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: Colors.white24,

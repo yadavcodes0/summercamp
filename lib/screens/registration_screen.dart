@@ -26,8 +26,8 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   final List<String> _branches = [
     'Inderlok',
     'Tri Nagar',
-    'J.J Colony',
-    'Lawerence Road',
+    'Ashok Vihar',
+    'Lawrence Road',
     'Nehru Nagar',
     'Azad Colony'
   ];

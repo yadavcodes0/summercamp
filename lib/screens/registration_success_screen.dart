@@ -57,7 +57,16 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen>
     if (imageBytes == null) return;
 
     if (kIsWeb) {
-      await FileSaver.saveFileBytes('KidsWorkshop_QR_$childId.png', imageBytes);
+      try {
+        final xFile = XFile.fromData(
+          imageBytes,
+          mimeType: 'image/png',
+          name: 'KidsWorkshop_QR_$childId.png',
+        );
+        await Share.shareXFiles([xFile], text: 'My Kids Workshop 2026 QR Code - $childId');
+      } catch (e) {
+        await FileSaver.saveFileBytes('KidsWorkshop_QR_$childId.png', imageBytes);
+      }
       return;
     }
 

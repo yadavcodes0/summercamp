@@ -115,7 +115,7 @@ serve(async (req) => {
         rec.parent_name || '', 
         rec.phone || '', 
         rec.gender || '', 
-        rec.entry_status ? 'Entered' : 'Not Yet', 
+        rec.entry_status ? 'Entered' : 'Not Entered', 
         formatTime(rec.entry_time),
         rec.branch_name || '',
         rec.marked_by_volunteer_name || '',

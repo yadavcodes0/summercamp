@@ -19,6 +19,8 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _mainController;
   late AnimationController _pulseController;
   late AnimationController _shimmerController;
+  late AnimationController _fadeOutController;
+  late Animation<double> _exitOverlayOpacity;
 
   // Staggered animations
   late Animation<double> _iconScale;
@@ -135,6 +137,15 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // ── Fade-out exit overlay ──
+    _fadeOutController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _exitOverlayOpacity = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _fadeOutController, curve: Curves.easeIn),
+    );
+
     _mainController.forward();
 
     // ── Navigation ──
@@ -153,14 +164,17 @@ class _SplashScreenState extends State<SplashScreen>
         } else {
           destination = const LanguageSelectionScreen();
         }
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, _, _) => destination,
-            transitionDuration: const Duration(milliseconds: 600),
-            transitionsBuilder: (_, animation, _, child) =>
-                FadeTransition(opacity: animation, child: child),
-          ),
-        );
+        // Fade out splash first, then navigate
+        _fadeOutController.forward().then((_) {
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              PageRouteBuilder(
+                pageBuilder: (_, _, _) => destination,
+                transitionDuration: Duration.zero,
+              ),
+            );
+          }
+        });
       }
     });
   }
@@ -170,156 +184,144 @@ class _SplashScreenState extends State<SplashScreen>
     _mainController.dispose();
     _pulseController.dispose();
     _shimmerController.dispose();
+    _fadeOutController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFFF8C00), // Deep orange
-              Color(0xFFf97b06), // Brand orange
-              Color(0xFFE85D04), // Warm amber
-              Color(0xFFD14600), // Rich burnt orange
-            ],
-            stops: [0.0, 0.35, 0.7, 1.0],
-          ),
-        ),
-        child: Stack(
-          children: [
-            // ── Decorative background circles ──
-            _buildBackgroundCircles(),
-
-            // ── Main content ──
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // ── Glowing Icon ──
-                    _buildGlowingIcon(),
-
-                    const SizedBox(height: 36),
-
-                    // ── Title ──
-                    SlideTransition(
-                      position: _titleSlide,
-                      child: FadeTransition(
-                        opacity: _titleFade,
-                        child: Text(
-                          'Kids Workshop',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.splineSans(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                            height: 1.1,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    // ── Year Badge ──
-                    SlideTransition(
-                      position: _yearSlide,
-                      child: FadeTransition(
-                        opacity: _yearFade,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.18),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            '✦  2 0 2 6  ✦',
-                            style: GoogleFonts.splineSans(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              letterSpacing: 3,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 22),
-
-                    // ── Subtitle / Location ──
-                    SlideTransition(
-                      position: _subtitleSlide,
-                      child: FadeTransition(
-                        opacity: _subtitleFade,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 6,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.location_on_rounded,
-                                size: 14,
-                                color: Colors.white.withOpacity(0.7),
-                              ),
-                              const SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  'Sant Nirankari Satsang Bhawan, Inderlok',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.splineSans(
-                                    fontSize: 12,
-                                    color: Colors.white.withOpacity(0.7),
-                                    letterSpacing: 0.5,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 48),
-
-                    // ── Shimmer Loading Bar ──
-                    FadeTransition(
-                      opacity: _loaderFade,
-                      child: _buildShimmerLoader(),
-                    ),
-                  ],
-                ),
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFFF8C00),
+                  Color(0xFFf97b06),
+                  Color(0xFFE85D04),
+                  Color(0xFFD14600),
+                ],
+                stops: [0.0, 0.35, 0.7, 1.0],
               ),
             ),
-          ],
-        ),
+            child: Stack(
+              children: [
+                _buildBackgroundCircles(),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildGlowingIcon(),
+                        const SizedBox(height: 36),
+                        SlideTransition(
+                          position: _titleSlide,
+                          child: FadeTransition(
+                            opacity: _titleFade,
+                            child: Text(
+                              'Kids Workshop',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.splineSans(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: -0.5,
+                                height: 1.1,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        SlideTransition(
+                          position: _yearSlide,
+                          child: FadeTransition(
+                            opacity: _yearFade,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.18),
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+                              ),
+                              child: Text(
+                                '✦  2 0 2 6  ✦',
+                                style: GoogleFonts.splineSans(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white, letterSpacing: 3),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                        SlideTransition(
+                          position: _subtitleSlide,
+                          child: FadeTransition(
+                            opacity: _subtitleFade,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.location_on_rounded, size: 14, color: Colors.white.withOpacity(0.7)),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      'Sant Nirankari Satsang Bhawan, Inderlok',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.splineSans(fontSize: 12, color: Colors.white.withOpacity(0.7), letterSpacing: 0.5, fontWeight: FontWeight.w400),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                        FadeTransition(
+                          opacity: _loaderFade,
+                          child: _buildShimmerLoader(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Exit overlay: fades to cream before navigating ──
+          AnimatedBuilder(
+            animation: _fadeOutController,
+            builder: (context, _) {
+              if (_exitOverlayOpacity.value == 0) return const SizedBox.shrink();
+              return Opacity(
+                opacity: _exitOverlayOpacity.value,
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFFFF8F2), Color(0xFFFFEBD6), Color(0xFFFFF8F2)],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

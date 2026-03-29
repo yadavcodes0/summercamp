@@ -29,7 +29,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
     'Ashok Vihar',
     'Lawrence Road',
     'Nehru Nagar',
-    'Azad Colony'
+    'Azad Colony',
   ];
 
   late AnimationController _anim;
@@ -43,11 +43,14 @@ class _RegistrationScreenState extends State<RegistrationScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _anim, curve: Curves.easeOut),
-    );
-    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _anim, curve: Curves.easeOutCubic));
+    _fadeAnim = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _anim, curve: Curves.easeOut));
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.15),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _anim, curve: Curves.easeOutCubic));
     _anim.forward();
   }
 
@@ -81,9 +84,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
     if (success) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const RegistrationSuccessScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const RegistrationSuccessScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -175,8 +176,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     label: lang.t('child_name'),
                     hint: lang.t('child_name_hint'),
                     icon: Icons.person_outline,
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? lang.t('required') : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? lang.t('required')
+                        : null,
                   ),
                   const SizedBox(height: 14),
 
@@ -187,7 +189,8 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     icon: Icons.cake_outlined,
                     keyboardType: TextInputType.number,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty) return lang.t('required');
+                      if (v == null || v.trim().isEmpty)
+                        return lang.t('required');
                       final n = int.tryParse(v.trim());
                       if (n == null || n < 5 || n > 25) {
                         return lang.t('valid_age');
@@ -211,12 +214,18 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   _SectionLabel('Branch Name'),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: _branchName,
+                    initialValue: _branchName,
                     decoration: InputDecoration(
                       labelText: 'Select Branch',
-                      prefixIcon: const Icon(Icons.business_outlined, color: Color(0xFFf97b06), size: 20),
+                      prefixIcon: const Icon(
+                        Icons.business_outlined,
+                        color: Color(0xFFf97b06),
+                        size: 20,
+                      ),
                     ),
-                    items: _branches.map((b) => DropdownMenuItem(value: b, child: Text(b))).toList(),
+                    items: _branches
+                        .map((b) => DropdownMenuItem(value: b, child: Text(b)))
+                        .toList(),
                     onChanged: (v) => setState(() => _branchName = v),
                     validator: (v) => v == null ? lang.t('required') : null,
                   ),
@@ -263,8 +272,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     label: lang.t('parent_name'),
                     hint: lang.t('parent_name_hint'),
                     icon: Icons.supervisor_account_outlined,
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? lang.t('required') : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? lang.t('required')
+                        : null,
                   ),
                   const SizedBox(height: 14),
 
@@ -275,7 +285,8 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     icon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty) return lang.t('required');
+                      if (v == null || v.trim().isEmpty)
+                        return lang.t('required');
                       if (v.trim().length < 10) {
                         return lang.t('valid_phone');
                       }
@@ -290,8 +301,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     hint: lang.t('address_hint'),
                     icon: Icons.location_on_outlined,
                     maxLines: 2,
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? lang.t('required') : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? lang.t('required')
+                        : null,
                   ),
 
                   const SizedBox(height: 32),

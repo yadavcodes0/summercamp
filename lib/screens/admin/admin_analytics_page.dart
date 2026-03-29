@@ -16,9 +16,10 @@ class AdminAnalyticsPage extends StatelessWidget {
     final female = children.where((c) => c.gender == 'Female').length;
     final other = children.length - male - female;
 
-    final g1 = children.where((c) => c.age >= 5 && c.age <= 8).length;
-    final g2 = children.where((c) => c.age >= 9 && c.age <= 12).length;
-    final g3 = children.where((c) => c.age >= 13 && c.age <= 16).length;
+    final g1 = children.where((c) => c.age >= 5 && c.age <= 9).length;
+    final g2 = children.where((c) => c.age >= 10 && c.age <= 14).length;
+    final g3 = children.where((c) => c.age >= 15 && c.age <= 19).length;
+    final g4 = children.where((c) => c.age >= 20 && c.age <= 25).length;
 
     // Daily registrations (last 7 days)
     final now = DateTime.now();
@@ -64,7 +65,7 @@ class AdminAnalyticsPage extends StatelessWidget {
                   title: 'Age Group Distribution',
                   child: SizedBox(
                     height: 260,
-                    child: _AgeChart(g1: g1, g2: g2, g3: g3),
+                    child: _AgeChart(g1: g1, g2: g2, g3: g3, g4: g4),
                   ),
                 ),
               ),
@@ -284,12 +285,18 @@ class _GenderChart extends StatelessWidget {
 
 // ── Age Bar Chart ──
 class _AgeChart extends StatelessWidget {
-  final int g1, g2, g3;
-  const _AgeChart({required this.g1, required this.g2, required this.g3});
+  final int g1, g2, g3, g4;
+  const _AgeChart({
+    required this.g1,
+    required this.g2,
+    required this.g3,
+    required this.g4,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final maxY = ([g1, g2, g3].reduce((a, b) => a > b ? a : b) + 5).toDouble();
+    final maxY = ([g1, g2, g3, g4].reduce((a, b) => a > b ? a : b) + 5)
+        .toDouble();
 
     return BarChart(
       BarChartData(
@@ -300,13 +307,21 @@ class _AgeChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                const labels = ['5–8 yrs', '9–12 yrs', '13–16 yrs'];
+                const labels = [
+                  '5–9 yrs',
+                  '10–14 yrs',
+                  '15–19 yrs',
+                  '20-25 yrs',
+                ];
+                if (value.toInt() >= labels.length)
+                  return const SizedBox.shrink();
+
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     labels[value.toInt()],
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 10,
                       color: const Color(0xFF888888),
                     ),
                   ),
@@ -344,6 +359,7 @@ class _AgeChart extends StatelessWidget {
           _bar(0, g1.toDouble()),
           _bar(1, g2.toDouble()),
           _bar(2, g3.toDouble()),
+          _bar(3, g4.toDouble()),
         ],
       ),
     );
@@ -356,7 +372,7 @@ class _AgeChart extends StatelessWidget {
         BarChartRodData(
           toY: y,
           color: const Color(0xFFf97b06),
-          width: 36,
+          width: 24, // Thinner bars to fit 4 groups nicely
           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
         ),
       ],
@@ -384,11 +400,14 @@ class _DailyLineChart extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              interval: 1,
+              reservedSize: 38,
               getTitlesWidget: (value, meta) {
                 final i = value.toInt();
                 if (i >= 0 && i < entries.length) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8),
+                  return SideTitleWidget(
+                    meta: meta,
+                    space: 8,
                     child: Text(
                       entries[i].key,
                       style: GoogleFonts.inter(

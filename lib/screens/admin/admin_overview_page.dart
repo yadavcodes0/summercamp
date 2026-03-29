@@ -262,6 +262,18 @@ class _RecentEntriesTable extends StatelessWidget {
         ),
         DataColumn(
           label: Text(
+            'Branch',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
+        ),
+        DataColumn(
+          label: Text(
+            'Marked By',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
+        ),
+        DataColumn(
+          label: Text(
             'Entry Time',
             style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
           ),
@@ -292,6 +304,12 @@ class _RecentEntriesTable extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+            ),
+            DataCell(
+              Text(child.branchName ?? '—', style: GoogleFonts.inter(fontSize: 13)),
+            ),
+            DataCell(
+              Text(child.markedByVolunteerName ?? '—', style: GoogleFonts.inter(fontSize: 13)),
             ),
             DataCell(Text(timeStr, style: GoogleFonts.inter(fontSize: 13))),
             DataCell(
@@ -448,14 +466,15 @@ class _AgeBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final g1 = children.where((c) => c.age >= 5 && c.age <= 8).length;
-    final g2 = children.where((c) => c.age >= 9 && c.age <= 12).length;
-    final g3 = children.where((c) => c.age >= 13 && c.age <= 16).length;
+    final g1 = children.where((c) => c.age >= 5 && c.age <= 9).length;
+    final g2 = children.where((c) => c.age >= 10 && c.age <= 14).length;
+    final g3 = children.where((c) => c.age >= 15 && c.age <= 19).length;
+    final g4 = children.where((c) => c.age >= 20 && c.age <= 25).length;
 
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
-        maxY: ([g1, g2, g3].reduce((a, b) => a > b ? a : b) + 5).toDouble(),
+        maxY: ([g1, g2, g3, g4].reduce((a, b) => a > b ? a : b) + 5).toDouble(),
         barTouchData: BarTouchData(enabled: true),
         titlesData: FlTitlesData(
           show: true,
@@ -463,14 +482,14 @@ class _AgeBarChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                const labels = ['5–8 yrs', '9–12 yrs', '13–16 yrs'];
+                const labels = ['5–9 yrs', '10–14 yrs', '15–19 yrs', '20-25 yrs'];
                 if (value.toInt() >= 0 && value.toInt() < labels.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       labels[value.toInt()],
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 10,
                         color: const Color(0xFF888888),
                       ),
                     ),
@@ -513,6 +532,7 @@ class _AgeBarChart extends StatelessWidget {
           _barGroup(0, g1.toDouble()),
           _barGroup(1, g2.toDouble()),
           _barGroup(2, g3.toDouble()),
+          _barGroup(3, g4.toDouble()),
         ],
       ),
     );
@@ -525,7 +545,7 @@ class _AgeBarChart extends StatelessWidget {
         BarChartRodData(
           toY: y,
           color: const Color(0xFFf97b06),
-          width: 28,
+          width: 20,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
         ),
       ],

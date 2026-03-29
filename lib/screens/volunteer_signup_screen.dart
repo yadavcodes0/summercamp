@@ -68,7 +68,9 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.error ?? context.read<LanguageProvider>().t('reg_failed')),
+          content: Text(
+            provider.error ?? context.read<LanguageProvider>().t('reg_failed'),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -147,7 +149,8 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       icon: Icons.cake_outlined,
                       keyboardType: TextInputType.number,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return lang.t('required');
+                        if (v == null || v.trim().isEmpty)
+                          return lang.t('required');
                         final n = int.tryParse(v.trim());
                         if (n == null || n < 16) {
                           return lang.t('age_16');
@@ -166,7 +169,8 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return lang.t('required');
+                        if (v == null || v.trim().isEmpty)
+                          return lang.t('required');
                         if (!v.contains('@')) return lang.t('invalid_email');
                         return null;
                       },
@@ -179,12 +183,18 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
               _SectionLabel('Branch Name'),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                value: _branchName,
+                initialValue: _branchName,
                 decoration: InputDecoration(
                   labelText: 'Select Branch',
-                  prefixIcon: const Icon(Icons.business_outlined, color: Color(0xFF43A047), size: 20),
+                  prefixIcon: const Icon(
+                    Icons.business_outlined,
+                    color: Color(0xFF43A047),
+                    size: 20,
+                  ),
                 ),
-                items: _branches.map((b) => DropdownMenuItem(value: b, child: Text(b))).toList(),
+                items: _branches
+                    .map((b) => DropdownMenuItem(value: b, child: Text(b)))
+                    .toList(),
                 onChanged: (v) => setState(() => _branchName = v),
                 validator: (v) => v == null ? lang.t('required') : null,
               ),

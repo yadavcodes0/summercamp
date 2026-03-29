@@ -107,7 +107,7 @@ serve(async (req) => {
         return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     }
 
-    // Format output: Child Name, Camp ID, Age, Parent Name, Phone Number, Gender, Entry Status, Entry Time
+    // Format output: Child Name, Camp ID, Age, Parent Name, Phone Number, Gender, Entry Status, Entry Time, Branch, Marked By Name, Marked By Phone
     const formatRecord = (rec: any) => [
         rec.child_name || '', 
         rec.child_id || '', 
@@ -116,7 +116,10 @@ serve(async (req) => {
         rec.phone || '', 
         rec.gender || '', 
         rec.entry_status ? 'Entered' : 'Not Yet', 
-        formatTime(rec.entry_time) 
+        formatTime(rec.entry_time),
+        rec.branch_name || '',
+        rec.marked_by_volunteer_name || '',
+        rec.marked_by_volunteer_phone || ''
     ];
 
     // Helper: Insert a new row inside the table (inherits formatting) and write values
@@ -153,7 +156,7 @@ serve(async (req) => {
 
         // 4. Write values into the newly inserted row (1-based index)
         const newRowIndex = lastRow + 1;
-        const updateRes = await fetch(`${apiBase}/values/${SHEET_NAME}!A${newRowIndex}:H${newRowIndex}?valueInputOption=USER_ENTERED`, {
+        const updateRes = await fetch(`${apiBase}/values/${SHEET_NAME}!A${newRowIndex}:K${newRowIndex}?valueInputOption=USER_ENTERED`, {
             method: "PUT",
             headers,
             body: JSON.stringify({ values: [values] })
@@ -170,7 +173,7 @@ serve(async (req) => {
         console.log(`Updating row index ${rowIndex} for child ID:`, record.child_id);
         
         if (rowIndex > 0) {
-            const res = await fetch(`${apiBase}/values/${SHEET_NAME}!A${rowIndex}:H${rowIndex}?valueInputOption=USER_ENTERED`, {
+            const res = await fetch(`${apiBase}/values/${SHEET_NAME}!A${rowIndex}:K${rowIndex}?valueInputOption=USER_ENTERED`, {
                 method: "PUT",
                 headers,
                 body: JSON.stringify({ values: [formatRecord(record)] })

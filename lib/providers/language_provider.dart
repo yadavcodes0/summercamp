@@ -166,6 +166,7 @@ class LanguageProvider extends ChangeNotifier {
     'scan_qr_subtitle': "Scan a child's QR to mark their entry/exit",
     'logout': 'Logout',
     'logout_subtitle': 'End your session securely',
+    'no_scans_yet': 'No entries marked yet.',
 
     // Language Selection
     'choose_language': 'Choose Language',
@@ -303,6 +304,7 @@ class LanguageProvider extends ChangeNotifier {
     'scan_qr_subtitle': 'प्रवेश/निकास चिह्नित करने के लिए बच्चे का QR स्कैन करें',
     'logout': 'लॉग आउट',
     'logout_subtitle': 'अपना सत्र सुरक्षित रूप से समाप्त करें',
+    'no_scans_yet': 'अभी तक कोई प्रविष्टि नहीं की गई है।',
 
     // Language Selection
     'choose_language': 'भाषा चुनें',

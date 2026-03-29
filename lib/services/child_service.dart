@@ -101,4 +101,14 @@ class ChildService {
 
     return ChildModel.fromJson(response);
   }
+
+  /// Realtime stream of children scanned/marked by a specific volunteer
+  Stream<List<ChildModel>> streamScannedChildren(String volunteerPhone) {
+    return _client
+        .from('children')
+        .stream(primaryKey: ['id'])
+        .eq('marked_by_volunteer_phone', volunteerPhone)
+        .order('entry_time', ascending: false)
+        .map((list) => list.map((e) => ChildModel.fromJson(e)).toList());
+  }
 }

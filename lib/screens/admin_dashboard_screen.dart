@@ -6,6 +6,9 @@ import 'package:summer_camp/providers/language_provider.dart';
 import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/screens/home_screen.dart';
 import 'package:summer_camp/screens/qr_scanner_screen.dart';
+import 'package:summer_camp/services/child_service.dart';
+import 'package:summer_camp/models/child_model.dart';
+import 'package:intl/intl.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -21,6 +24,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Ticker
 
   // Background animation controller
   late AnimationController _bgAnim;
+  
+  final _childService = ChildService();
 
   @override
   void initState() {
@@ -216,6 +221,112 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Ticker
                                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomeScreen()), (route) => false);
                                 },
                               ),
+                              const SizedBox(height: 40),
+
+                              // Recent Scans Section
+                              Text("Your Recent Scans", style: GoogleFonts.splineSans(fontSize: 20, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B))),
+                              const SizedBox(height: 16),
+                              
+                              Consumer<VolunteerProvider>(
+                                builder: (context, provider, _) {
+                                  final phone = provider.volunteerPhone;
+                                  if (phone == null || phone.isEmpty) return const SizedBox();
+
+                                  return StreamBuilder<List<ChildModel>>(
+                                    stream: _childService.streamScannedChildren(phone),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return const Center(child: CircularProgressIndicator(color: Color(0xFF81C784)));
+                                      }
+                                      if (snapshot.hasError) {
+                                        return Container(
+                                          padding: const EdgeInsets.all(16),
+                                          decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
+                                          child: Text('Error loading scans: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+                                        );
+                                      }
+                                      
+                                      final children = snapshot.data ?? [];
+                                      
+                                      if (children.isEmpty) {
+                                        return Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.5),
+                                            borderRadius: BorderRadius.circular(24),
+                                            border: Border.all(color: Colors.white.withValues(alpha: 0.8), width: 1.5),
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              Icon(Icons.qr_code_scanner_rounded, size: 48, color: const Color(0xFF94A3B8)),
+                                              const SizedBox(height: 16),
+                                              Text(lang.t('no_scans_yet'), style: GoogleFonts.splineSans(fontSize: 16, color: const Color(0xFF64748B))),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                      
+                                      return ListView.separated(
+                                        shrinkWrap: true,
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        itemCount: children.length,
+                                        separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                        itemBuilder: (context, index) {
+                                          final child = children[index];
+                                          final timeStr = child.entryTime != null 
+                                            ? DateFormat('hh:mm a').format(child.entryTime!) 
+                                            : 'Just now';
+                                            
+                                          return Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withValues(alpha: 0.7),
+                                              borderRadius: BorderRadius.circular(16),
+                                              border: Border.all(color: Colors.white.withValues(alpha: 0.9), width: 1.5),
+                                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 46,
+                                                  height: 46,
+                                                  decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(12)),
+                                                  child: Center(child: Text(child.childName.isNotEmpty ? child.childName[0].toUpperCase() : '?', style: GoogleFonts.splineSans(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF2E7D32)))),
+                                                ),
+                                                const SizedBox(width: 16),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(child.childName, style: GoogleFonts.splineSans(fontSize: 16, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+                                                      const SizedBox(height: 4),
+                                                      Text('${child.childId} • ${child.branchName}', style: GoogleFonts.splineSans(fontSize: 13, color: const Color(0xFF64748B))),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                  children: [
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                      decoration: BoxDecoration(color: const Color(0xFF81C784).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20)),
+                                                      child: Text('Entered', style: GoogleFonts.splineSans(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFF2E7D32))),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Text(timeStr, style: GoogleFonts.splineSans(fontSize: 11, color: const Color(0xFF94A3B8))),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 32),
                             ],
                           ),
                         ),

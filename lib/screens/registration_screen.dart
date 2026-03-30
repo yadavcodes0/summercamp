@@ -189,8 +189,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     icon: Icons.cake_outlined,
                     keyboardType: TextInputType.number,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
+                      if (v == null || v.trim().isEmpty) {
                         return lang.t('required');
+                      }
                       final n = int.tryParse(v.trim());
                       if (n == null || n < 5 || n > 25) {
                         return lang.t('valid_age');
@@ -285,8 +286,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     icon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
+                      if (v == null || v.trim().isEmpty) {
                         return lang.t('required');
+                      }
                       if (v.trim().length < 10) {
                         return lang.t('valid_phone');
                       }

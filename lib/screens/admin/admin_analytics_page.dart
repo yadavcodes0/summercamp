@@ -313,8 +313,9 @@ class _AgeChart extends StatelessWidget {
                   '15–19 yrs',
                   '20-25 yrs',
                 ];
-                if (value.toInt() >= labels.length)
+                if (value.toInt() >= labels.length) {
                   return const SizedBox.shrink();
+                }
 
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),

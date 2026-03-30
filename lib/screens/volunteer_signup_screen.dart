@@ -149,8 +149,9 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       icon: Icons.cake_outlined,
                       keyboardType: TextInputType.number,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
+                        if (v == null || v.trim().isEmpty) {
                           return lang.t('required');
+                        }
                         final n = int.tryParse(v.trim());
                         if (n == null || n < 16) {
                           return lang.t('age_16');
@@ -169,8 +170,9 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
+                        if (v == null || v.trim().isEmpty) {
                           return lang.t('required');
+                        }
                         if (!v.contains('@')) return lang.t('invalid_email');
                         return null;
                       },

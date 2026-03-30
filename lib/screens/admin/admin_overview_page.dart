@@ -245,9 +245,11 @@ class _RecentEntriesTable extends StatelessWidget {
       );
     }
 
-    return DataTable(
-      headingRowColor: WidgetStateProperty.all(const Color(0xFFF5F5FA)),
-      columns: [
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        headingRowColor: WidgetStateProperty.all(const Color(0xFFF5F5FA)),
+        columns: [
         DataColumn(
           label: Text(
             'Child Name',
@@ -275,6 +277,12 @@ class _RecentEntriesTable extends StatelessWidget {
         DataColumn(
           label: Text(
             'Entry Time',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
+        ),
+        DataColumn(
+          label: Text(
+            'Parent Name',
             style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
           ),
         ),
@@ -313,6 +321,9 @@ class _RecentEntriesTable extends StatelessWidget {
             ),
             DataCell(Text(timeStr, style: GoogleFonts.inter(fontSize: 13))),
             DataCell(
+              Text(child.parentName, style: GoogleFonts.inter(fontSize: 13)),
+            ),
+            DataCell(
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -335,7 +346,8 @@ class _RecentEntriesTable extends StatelessWidget {
           ],
         );
       }).toList(),
-    );
+    ),
+  );
   }
 }
 

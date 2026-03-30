@@ -71,7 +71,7 @@ class AdminDashboardProvider extends ChangeNotifier {
     final remainingChildren = totalChildren - enteredChildren;
 
     _stats = {
-      'totalRegistrations': totalChildren + totalVolunteers,
+      'totalRegistrations': totalChildren,
       'totalChildren': totalChildren,
       'totalVolunteers': totalVolunteers,
       'entriesCompleted': enteredChildren,

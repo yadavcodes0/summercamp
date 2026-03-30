@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summer_camp/config/supabase_config.dart';
@@ -16,8 +16,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Use clean URL paths (/admin) instead of hash (#/admin)
-  usePathUrlStrategy();
+  // Using default hash URL strategy (/#/admin) — works on reload
+  // without any server-side rewrite configuration.
 
   try {
     await Supabase.initialize(
@@ -36,10 +36,9 @@ void main() async {
     debugPrint('Firebase Init Error: $e');
   }
 
-  // Check URL path at startup to determine which app to show
+  // Check URL fragment (hash) at startup to determine which app to show
   final uri = Uri.base;
-  final isAdmin = uri.path.contains('admin') ||
-      uri.fragment.contains('admin');
+  final isAdmin = uri.fragment.contains('admin');
 
   runApp(SummerCampApp(isAdmin: isAdmin));
 }

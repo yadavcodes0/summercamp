@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:summer_camp/providers/language_provider.dart';
 import 'package:summer_camp/providers/volunteer_provider.dart';
 import 'package:summer_camp/screens/admin_dashboard_screen.dart';
-import 'package:summer_camp/screens/home_screen.dart';
 import 'package:summer_camp/screens/language_selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -150,7 +148,6 @@ class _SplashScreenState extends State<SplashScreen>
 
     // ── Navigation ──
     final provider = context.read<VolunteerProvider>();
-    final langProvider = context.read<LanguageProvider>();
     Future.wait([
       Future.delayed(const Duration(seconds: 4)),
       provider.initializationDone,
@@ -159,8 +156,6 @@ class _SplashScreenState extends State<SplashScreen>
         Widget destination;
         if (provider.isLoggedIn) {
           destination = const AdminDashboardScreen();
-        } else if (langProvider.hasSelectedLanguage) {
-          destination = const HomeScreen();
         } else {
           destination = const LanguageSelectionScreen();
         }

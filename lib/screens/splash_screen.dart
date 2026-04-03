@@ -426,6 +426,18 @@ class _SplashScreenState extends State<SplashScreen>
             left: MediaQuery.of(context).size.width * 0.6,
             child: _circle(40, 0.1),
           ),
+          // INVISIBLE TEXT TO PRELOAD FONTS FOR WEB
+          Positioned(
+            top: -100,
+            left: -100,
+            child: Opacity(
+              opacity: 0.01,
+              child: Text(
+                '🎨 अ हिन्दी भाषा चुनें हिंदी में जारी रखें',
+                style: GoogleFonts.splineSans(fontSize: 1),
+              ),
+            ),
+          ),
         ],
       ),
     );

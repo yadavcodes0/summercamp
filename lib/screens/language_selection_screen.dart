@@ -13,13 +13,19 @@ class LanguageSelectionScreen extends StatefulWidget {
 
 class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
     with SingleTickerProviderStateMixin {
-  String _selected = 'en';
+  late String _selected;
   late AnimationController _anim;
   late Animation<double> _fadeAnim;
 
   @override
   void initState() {
     super.initState();
+    
+    _selected = context.read<LanguageProvider>().locale;
+    if (_selected.isEmpty) {
+      _selected = 'en';
+    }
+
     _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
     _fadeAnim = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _anim, curve: Curves.easeOut));
     _anim.forward();
@@ -61,7 +67,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                           shape: BoxShape.circle,
                           gradient: LinearGradient(colors: [const Color(0xFFf97b06).withOpacity(0.2), const Color(0xFFFF8C00).withOpacity(0.1)]),
                         ),
-                        child: const Center(child: Text('🌐', style: TextStyle(fontSize: 40))),
+                        child: const Center(child: Icon(Icons.language, color: Color(0xFFf97b06), size: 40)),
                       ),
                     ]),
 
@@ -77,7 +83,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
 
                     // English Card
                     _LanguageCard(
-                      flag: '🇬🇧',
+                      leadingIcon: Text('A', style: GoogleFonts.splineSans(fontSize: 24, fontWeight: FontWeight.bold, color: const Color(0xFFf97b06))),
                       title: 'English',
                       subtitle: 'Continue in English',
                       isSelected: _selected == 'en',
@@ -88,7 +94,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
 
                     // Hindi Card
                     _LanguageCard(
-                      flag: '🇮🇳',
+                      leadingIcon: Text('अ', style: GoogleFonts.splineSans(fontSize: 24, fontWeight: FontWeight.bold, color: const Color(0xFFf97b06))),
                       title: 'हिन्दी',
                       subtitle: 'हिंदी में जारी रखें',
                       isSelected: _selected == 'hi',
@@ -132,13 +138,13 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
 }
 
 class _LanguageCard extends StatelessWidget {
-  final String flag;
+  final Widget leadingIcon;
   final String title;
   final String subtitle;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _LanguageCard({required this.flag, required this.title, required this.subtitle, required this.isSelected, required this.onTap});
+  const _LanguageCard({required this.leadingIcon, required this.title, required this.subtitle, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +166,7 @@ class _LanguageCard extends StatelessWidget {
           Container(
             width: 48, height: 48,
             decoration: BoxDecoration(color: isSelected ? const Color(0xFFf97b06).withOpacity(0.1) : const Color(0xFFF5F0EB), borderRadius: BorderRadius.circular(12)),
-            child: Center(child: Text(flag, style: const TextStyle(fontSize: 26))),
+            child: Center(child: leadingIcon),
           ),
           const SizedBox(width: 16),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

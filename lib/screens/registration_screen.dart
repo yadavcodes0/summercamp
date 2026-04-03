@@ -212,12 +212,12 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   ),
                   const SizedBox(height: 18),
 
-                  _SectionLabel('Branch Name'),
+                  _SectionLabel(lang.t('branch_name')),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: _branchName,
                     decoration: InputDecoration(
-                      labelText: 'Select Branch',
+                      labelText: lang.t('select_branch'),
                       prefixIcon: const Icon(
                         Icons.business_outlined,
                         color: Color(0xFFf97b06),
@@ -225,7 +225,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                       ),
                     ),
                     items: _branches
-                        .map((b) => DropdownMenuItem(value: b, child: Text(b)))
+                        .map((b) => DropdownMenuItem(value: b, child: Text(lang.t('branch_$b'))))
                         .toList(),
                     onChanged: (v) => setState(() => _branchName = v),
                     validator: (v) => v == null ? lang.t('required') : null,

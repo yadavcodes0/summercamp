@@ -7,7 +7,8 @@ import 'package:summer_camp/services/admin_dashboard_service.dart';
 class AdminDashboardProvider extends ChangeNotifier {
   final _service = AdminDashboardService();
 
-  bool _isLoading = true;
+  bool _isLoading = false;
+  bool _isLive = false;
   String? _error;
 
   Map<String, int> _stats = {};
@@ -19,6 +20,7 @@ class AdminDashboardProvider extends ChangeNotifier {
   StreamSubscription<List<Map<String, dynamic>>>? _volunteersSubscription;
 
   bool get isLoading => _isLoading;
+  bool get isLive => _isLive;
   String? get error => _error;
   Map<String, int> get stats => _stats;
   List<ChildModel> get children => _children;
@@ -28,6 +30,7 @@ class AdminDashboardProvider extends ChangeNotifier {
   void loadDashboard() {
     _isLoading = true;
     _error = null;
+    _isLive = true;
     notifyListeners();
 
     _childrenSubscription?.cancel();
@@ -57,42 +60,62 @@ class AdminDashboardProvider extends ChangeNotifier {
     );
   }
 
+  void stopLive() {
+    _childrenSubscription?.cancel();
+    _volunteersSubscription?.cancel();
+    _isLive = false;
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  List<ChildModel> _enteredChildren = [];
+  Map<String, int> _branchWiseEntries = {};
+
+  List<ChildModel> get enteredChildren => _enteredChildren;
+  Map<String, int> get branchWiseEntries => _branchWiseEntries;
+
   void _updateDerivedData() {
-    // We need both streams to have emitted at least once to hide loading state,
-    // but we can compute with what we have anyway.
     _isLoading = false;
 
-    // Calc Stats
+    // ── All-Time Stats ──
     final totalChildren = _children.length;
     final totalVolunteers = _volunteers.length;
-    final enteredChildren = _children
+
+    // ── Entered Children (all who have entry) ──
+    final entered = _children
         .where((c) => c.entryStatus == true)
-        .length;
-    final remainingChildren = totalChildren - enteredChildren;
+        .toList();
+    final remainingChildren = totalChildren - entered.length;
+
+    // ── Branch-wise entries ──
+    final branchMap = <String, int>{};
+    for (final c in entered) {
+      final branch = c.branchName ?? 'Unknown';
+      branchMap[branch] = (branchMap[branch] ?? 0) + 1;
+    }
+    _branchWiseEntries = branchMap;
 
     _stats = {
       'totalRegistrations': totalChildren,
       'totalChildren': totalChildren,
       'totalVolunteers': totalVolunteers,
-      'entriesCompleted': enteredChildren,
+      'entriesCompleted': entered.length,
       'remaining': remainingChildren,
     };
 
-    // Calc Recent Entries (Top 10 children with entryStatus == true)
-    final enteredList = _children.where((c) => c.entryStatus == true).toList();
-    // Sort descending by entryTime.
-    // If entryTime is null, fallback to createdAt or just sort them to the end
-    enteredList.sort((a, b) {
+    // ── Entered Children list (sorted descending by entry time) ──
+    entered.sort((a, b) {
       if (a.entryTime != null && b.entryTime != null) {
         return b.entryTime!.compareTo(a.entryTime!);
       }
       if (a.entryTime != null) return -1;
       if (b.entryTime != null) return 1;
-
       return b.createdAt.compareTo(a.createdAt);
     });
+    _enteredChildren = entered;
 
-    _recentEntries = enteredList.take(10).toList();
+    // ── Recent Entries (top 10) ──
+    _recentEntries = entered.take(10).toList();
 
     notifyListeners();
   }

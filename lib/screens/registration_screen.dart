@@ -87,9 +87,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>
         MaterialPageRoute(builder: (_) => const RegistrationSuccessScreen()),
       );
     } else {
+      final lang = context.read<LanguageProvider>();
+      final errorMsg = (provider.error?.contains('DUPLICATE_REGISTRATION') ?? false)
+          ? lang.t('duplicate_registration')
+          : (provider.error ?? 'Registration failed');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.error ?? 'Registration failed'),
+          content: Text(errorMsg),
           backgroundColor: Colors.red,
         ),
       );
@@ -285,11 +289,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     hint: lang.t('phone_hint'),
                     icon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
+                    maxLength: 10,
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
                         return lang.t('required');
                       }
-                      if (v.trim().length < 10) {
+                      final phone = v.trim();
+                      if (!RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
                         return lang.t('valid_phone');
                       }
                       return null;
@@ -404,6 +410,7 @@ class _AppTextField extends StatelessWidget {
   final IconData icon;
   final TextInputType? keyboardType;
   final int maxLines;
+  final int? maxLength;
   final String? Function(String?)? validator;
 
   const _AppTextField({
@@ -413,6 +420,7 @@ class _AppTextField extends StatelessWidget {
     required this.icon,
     this.keyboardType,
     this.maxLines = 1,
+    this.maxLength,
     this.validator,
   });
 
@@ -422,11 +430,13 @@ class _AppTextField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
+      maxLength: maxLength,
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(icon, color: const Color(0xFFf97b06), size: 20),
+        counterText: '',
       ),
     );
   }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:summer_camp/providers/admin_dashboard_provider.dart';
 import 'package:summer_camp/screens/admin/admin_analytics_page.dart';
 import 'package:summer_camp/screens/admin/admin_children_page.dart';
 import 'package:summer_camp/screens/admin/admin_overview_page.dart';
@@ -34,9 +32,6 @@ class _AdminLayoutState extends State<AdminLayout> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<AdminDashboardProvider>().loadDashboard();
-    });
   }
 
   @override

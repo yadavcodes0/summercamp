@@ -11,9 +11,84 @@ class AdminOverviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<AdminDashboardProvider>();
 
+    // ── Not Live — Show Go Live Screen ──
+    if (!provider.isLive && !provider.isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: const Color(0xFFf97b06).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.cell_tower_rounded,
+                size: 48,
+                color: Color(0xFFf97b06),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Workshop Dashboard',
+              style: GoogleFonts.inter(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1A1A2E),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Start live tracking to see real-time entries, stats & analytics',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF888888),
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => provider.loadDashboard(),
+              icon: const Icon(Icons.play_arrow_rounded, size: 24),
+              label: Text(
+                'Go Live',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF43A047),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                elevation: 4,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (provider.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFf97b06)),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(color: Color(0xFFf97b06)),
+            const SizedBox(height: 16),
+            Text(
+              'Going live...',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF888888),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -33,35 +108,74 @@ class AdminOverviewPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Stat Cards ──
+          // ── Live Badge ──
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF43A047).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF43A047).withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8, height: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF43A047),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'LIVE',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF43A047),
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Workshop Day Dashboard',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: const Color(0xFF888888),
+                ),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: () => provider.stopLive(),
+                icon: const Icon(Icons.stop_rounded, size: 18, color: Color(0xFFEF5350)),
+                label: Text(
+                  'Stop Live',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFEF5350),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── Stats ──
           Row(
             children: [
               _StatCard(
-                title: 'Total Registrations',
-                value: '${stats['totalRegistrations'] ?? 0}',
-                icon: Icons.app_registration_rounded,
-                color: const Color(0xFFf97b06),
-              ),
-              const SizedBox(width: 16),
-              _StatCard(
-                title: 'Total Children',
-                value: '${stats['totalChildren'] ?? 0}',
-                icon: Icons.child_care_rounded,
-                color: const Color(0xFF5C6BC0),
-              ),
-              const SizedBox(width: 16),
-              _StatCard(
-                title: 'Total Volunteers',
-                value: '${stats['totalVolunteers'] ?? 0}',
-                icon: Icons.people_rounded,
-                color: const Color(0xFF26A69A),
-              ),
-              const SizedBox(width: 16),
-              _StatCard(
-                title: 'Entries Completed',
+                title: 'Entries Done',
                 value: '${stats['entriesCompleted'] ?? 0}',
-                icon: Icons.check_circle_rounded,
-                color: const Color(0xFF43A047),
+                icon: Icons.login_rounded,
+                color: const Color(0xFFf97b06),
+                isHighlighted: true,
               ),
               const SizedBox(width: 16),
               _StatCard(
@@ -69,44 +183,114 @@ class AdminOverviewPage extends StatelessWidget {
                 value: '${stats['remaining'] ?? 0}',
                 icon: Icons.hourglass_bottom_rounded,
                 color: const Color(0xFFEF5350),
+                isHighlighted: true,
+              ),
+              const SizedBox(width: 16),
+              _StatCard(
+                title: 'Total Registered',
+                value: '${stats['totalRegistrations'] ?? 0}',
+                icon: Icons.app_registration_rounded,
+                color: const Color(0xFF5C6BC0),
+              ),
+              const SizedBox(width: 16),
+              _StatCard(
+                title: 'Volunteers',
+                value: '${stats['totalVolunteers'] ?? 0}',
+                icon: Icons.people_rounded,
+                color: const Color(0xFF26A69A),
               ),
             ],
           ),
 
           const SizedBox(height: 28),
 
-          // ── Recent Entries + Charts ──
+          // ── Entries Table + Sidebar ──
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Recent Entries Table
+              // Live Entries Table
               Expanded(
                 flex: 3,
                 child: _CardContainer(
-                  title: 'Recent Entries',
-                  child: _RecentEntriesTable(entries: provider.recentEntries),
+                  title: 'Live Entries',
+                  trailing: Text(
+                    '${provider.enteredChildren.length} entries',
+                    style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF888888)),
+                  ),
+                  child: _RecentEntriesTable(entries: provider.enteredChildren),
                 ),
               ),
               const SizedBox(width: 16),
 
-              // Charts
+              // Sidebar
               Expanded(
                 flex: 2,
                 child: Column(
                   children: [
+                    // Branch-wise
                     _CardContainer(
-                      title: 'Gender Distribution',
+                      title: 'Branch-wise Entries',
+                      child: provider.branchWiseEntries.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Text(
+                                'No entries yet.',
+                                style: GoogleFonts.inter(color: const Color(0xFF888888)),
+                              ),
+                            )
+                          : Column(
+                              children: provider.branchWiseEntries.entries.map((e) {
+                                final total = provider.enteredChildren.length;
+                                final pct = total > 0 ? (e.value / total * 100).round() : 0;
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          e.key,
+                                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${e.value}',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: const Color(0xFFf97b06),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      SizedBox(
+                                        width: 40,
+                                        child: Text(
+                                          '$pct%',
+                                          style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF888888)),
+                                          textAlign: TextAlign.right,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Gender Chart — Entered
+                    _CardContainer(
+                      title: 'Gender — Entered',
                       child: SizedBox(
                         height: 200,
-                        child: _GenderPieChart(children: provider.children),
+                        child: _GenderPieChart(children: provider.enteredChildren),
                       ),
                     ),
                     const SizedBox(height: 16),
                     _CardContainer(
-                      title: 'Age Group Distribution',
+                      title: 'Age Group — Entered',
                       child: SizedBox(
                         height: 200,
-                        child: _AgeBarChart(children: provider.children),
+                        child: _AgeBarChart(children: provider.enteredChildren),
                       ),
                     ),
                   ],
@@ -126,12 +310,14 @@ class _StatCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
+  final bool isHighlighted;
 
   const _StatCard({
     required this.title,
     required this.value,
     required this.icon,
     required this.color,
+    this.isHighlighted = false,
   });
 
   @override
@@ -140,12 +326,13 @@ class _StatCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isHighlighted ? color.withOpacity(0.04) : Colors.white,
           borderRadius: BorderRadius.circular(14),
+          border: isHighlighted ? Border.all(color: color.withOpacity(0.3), width: 1.5) : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
+              color: isHighlighted ? color.withOpacity(0.1) : Colors.black.withOpacity(0.04),
+              blurRadius: isHighlighted ? 16 : 10,
               offset: const Offset(0, 4),
             ),
           ],
@@ -190,8 +377,9 @@ class _StatCard extends StatelessWidget {
 class _CardContainer extends StatelessWidget {
   final String title;
   final Widget child;
+  final Widget? trailing;
 
-  const _CardContainer({required this.title, required this.child});
+  const _CardContainer({required this.title, required this.child, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -211,13 +399,19 @@ class _CardContainer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF1A1A2E),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
+              if (trailing != null) trailing!,
+            ],
           ),
           const SizedBox(height: 16),
           child,

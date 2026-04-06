@@ -80,6 +80,7 @@ class LanguageProvider extends ChangeNotifier {
     'valid_age': 'Enter a valid age (5–25)',
     'age_limit_note': 'Age should be between 5-25',
     'valid_phone': 'Enter a valid phone number',
+    'duplicate_registration': 'This child is already registered with this phone number.',
 
     // Registration Success
     'reg_success_title': 'Registration Successful',
@@ -226,6 +227,7 @@ class LanguageProvider extends ChangeNotifier {
     'valid_age': 'सही उम्र दर्ज करें (5–25)',
     'age_limit_note': 'उम्र 5-25 वर्ष के बीच होनी चाहिए',
     'valid_phone': 'सही फोन नंबर दर्ज करें',
+    'duplicate_registration': 'यह बच्चा इस फोन नंबर से पहले से रजिस्टर्ड है।',
 
     // Registration Success
     'reg_success_title': 'पंजीकरण सफल',

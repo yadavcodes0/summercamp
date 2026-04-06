@@ -26,7 +26,7 @@ class ChildService {
     return 'KW2026-${nextNum.toString().padLeft(4, '0')}';
   }
 
-  /// Register a new child
+  /// Register a new child (with duplicate check)
   Future<ChildModel> registerChild({
     required String childName,
     required int age,
@@ -36,6 +36,18 @@ class ChildService {
     required String gender,
     required String branchName,
   }) async {
+    // ── Duplicate check: same child name + same phone ──
+    final existing = await _client
+        .from('children')
+        .select('id')
+        .ilike('child_name', childName.trim())
+        .eq('phone', phone.trim())
+        .limit(1);
+
+    if (existing.isNotEmpty) {
+      throw 'DUPLICATE_REGISTRATION';
+    }
+
     final childId = await _generateChildId();
 
     final data = {

@@ -230,7 +230,7 @@ class AdminOverviewPage extends StatelessWidget {
                     // Branch-wise
                     _CardContainer(
                       title: 'Branch-wise Entries',
-                      child: provider.branchWiseEntries.isEmpty
+                      child: provider.branchWiseRegistrations.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.all(16),
                               child: Text(
@@ -239,34 +239,51 @@ class AdminOverviewPage extends StatelessWidget {
                               ),
                             )
                           : Column(
-                              children: provider.branchWiseEntries.entries.map((e) {
-                                final total = provider.enteredChildren.length;
-                                final pct = total > 0 ? (e.value / total * 100).round() : 0;
+                              children: provider.branchWiseRegistrations.entries.map((e) {
+                                final branchName = e.key;
+                                final totalReg = e.value;
+                                final entered = provider.branchWiseEntries[branchName] ?? 0;
+                                final pct = totalReg > 0 ? (entered / totalReg * 100).round() : 0;
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 6),
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Text(
-                                          e.key,
-                                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
-                                        ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              branchName,
+                                              style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
+                                            ),
+                                          ),
+                                          Text(
+                                            '$entered/$totalReg',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                              color: const Color(0xFFf97b06),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          SizedBox(
+                                            width: 40,
+                                            child: Text(
+                                              '$pct%',
+                                              style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF888888)),
+                                              textAlign: TextAlign.right,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        '${e.value}',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: const Color(0xFFf97b06),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      SizedBox(
-                                        width: 40,
-                                        child: Text(
-                                          '$pct%',
-                                          style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF888888)),
-                                          textAlign: TextAlign.right,
+                                      const SizedBox(height: 4),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: LinearProgressIndicator(
+                                          value: totalReg > 0 ? entered / totalReg : 0,
+                                          backgroundColor: const Color(0xFFF0F0F0),
+                                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFf97b06)),
+                                          minHeight: 4,
                                         ),
                                       ),
                                     ],
@@ -670,17 +687,30 @@ class _AgeBarChart extends StatelessWidget {
 
   const _AgeBarChart({required this.children});
 
+  // Age group colors
+  static const _groupColors = [
+    Color(0xFFE91E8C), // 5–7: Pink
+    Color(0xFFE53935), // 8–10: Red
+    Color(0xFF43A047), // 11–16: Green
+    Color(0xFFFDD835), // 17–21: Yellow
+    Color(0xFF1E88E5), // 22–25: Blue
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final g1 = children.where((c) => c.age >= 5 && c.age <= 9).length;
-    final g2 = children.where((c) => c.age >= 10 && c.age <= 14).length;
-    final g3 = children.where((c) => c.age >= 15 && c.age <= 19).length;
-    final g4 = children.where((c) => c.age >= 20 && c.age <= 25).length;
+    final g1 = children.where((c) => c.age >= 5 && c.age <= 7).length;
+    final g2 = children.where((c) => c.age >= 8 && c.age <= 10).length;
+    final g3 = children.where((c) => c.age >= 11 && c.age <= 16).length;
+    final g4 = children.where((c) => c.age >= 17 && c.age <= 21).length;
+    final g5 = children.where((c) => c.age >= 22 && c.age <= 25).length;
+
+    final groups = [g1, g2, g3, g4, g5];
+    final maxVal = groups.reduce((a, b) => a > b ? a : b);
 
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
-        maxY: ([g1, g2, g3, g4].reduce((a, b) => a > b ? a : b) + 5).toDouble(),
+        maxY: (maxVal + 5).toDouble(),
         barTouchData: BarTouchData(enabled: true),
         titlesData: FlTitlesData(
           show: true,
@@ -688,7 +718,7 @@ class _AgeBarChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                const labels = ['5–9 yrs', '10–14 yrs', '15–19 yrs', '20-25 yrs'];
+                const labels = ['5–7', '8–10', '11–16', '17–21', '22–25'];
                 if (value.toInt() >= 0 && value.toInt() < labels.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
@@ -696,7 +726,8 @@ class _AgeBarChart extends StatelessWidget {
                       labels[value.toInt()],
                       style: GoogleFonts.inter(
                         fontSize: 10,
-                        color: const Color(0xFF888888),
+                        fontWeight: FontWeight.w600,
+                        color: _groupColors[value.toInt()],
                       ),
                     ),
                   );
@@ -739,6 +770,7 @@ class _AgeBarChart extends StatelessWidget {
           _barGroup(1, g2.toDouble()),
           _barGroup(2, g3.toDouble()),
           _barGroup(3, g4.toDouble()),
+          _barGroup(4, g5.toDouble()),
         ],
       ),
     );
@@ -750,8 +782,8 @@ class _AgeBarChart extends StatelessWidget {
       barRods: [
         BarChartRodData(
           toY: y,
-          color: const Color(0xFFf97b06),
-          width: 20,
+          color: _groupColors[x],
+          width: 18,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
         ),
       ],

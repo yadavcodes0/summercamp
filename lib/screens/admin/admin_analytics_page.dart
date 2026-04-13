@@ -16,10 +16,11 @@ class AdminAnalyticsPage extends StatelessWidget {
     final female = children.where((c) => c.gender == 'Female').length;
     final other = children.length - male - female;
 
-    final g1 = children.where((c) => c.age >= 5 && c.age <= 9).length;
-    final g2 = children.where((c) => c.age >= 10 && c.age <= 14).length;
-    final g3 = children.where((c) => c.age >= 15 && c.age <= 19).length;
-    final g4 = children.where((c) => c.age >= 20 && c.age <= 25).length;
+    final g1 = children.where((c) => c.age >= 5 && c.age <= 7).length;
+    final g2 = children.where((c) => c.age >= 8 && c.age <= 10).length;
+    final g3 = children.where((c) => c.age >= 11 && c.age <= 16).length;
+    final g4 = children.where((c) => c.age >= 17 && c.age <= 21).length;
+    final g5 = children.where((c) => c.age >= 22 && c.age <= 25).length;
 
     // Daily registrations (last 7 days)
     final now = DateTime.now();
@@ -65,7 +66,7 @@ class AdminAnalyticsPage extends StatelessWidget {
                   title: 'Age Group Distribution',
                   child: SizedBox(
                     height: 260,
-                    child: _AgeChart(g1: g1, g2: g2, g3: g3, g4: g4),
+                    child: _AgeChart(g1: g1, g2: g2, g3: g3, g4: g4, g5: g5),
                   ),
                 ),
               ),
@@ -285,18 +286,28 @@ class _GenderChart extends StatelessWidget {
 
 // ── Age Bar Chart ──
 class _AgeChart extends StatelessWidget {
-  final int g1, g2, g3, g4;
+  final int g1, g2, g3, g4, g5;
   const _AgeChart({
     required this.g1,
     required this.g2,
     required this.g3,
     required this.g4,
+    required this.g5,
   });
+
+  // Age group colors
+  static const _groupColors = [
+    Color(0xFFE91E8C), // 5–7: Pink
+    Color(0xFFE53935), // 8–10: Red
+    Color(0xFF43A047), // 11–16: Green
+    Color(0xFFFDD835), // 17–21: Yellow
+    Color(0xFF1E88E5), // 22–25: Blue
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final maxY = ([g1, g2, g3, g4].reduce((a, b) => a > b ? a : b) + 5)
-        .toDouble();
+    final groups = [g1, g2, g3, g4, g5];
+    final maxY = (groups.reduce((a, b) => a > b ? a : b) + 5).toDouble();
 
     return BarChart(
       BarChartData(
@@ -307,13 +318,9 @@ class _AgeChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                const labels = [
-                  '5–9 yrs',
-                  '10–14 yrs',
-                  '15–19 yrs',
-                  '20-25 yrs',
-                ];
-                if (value.toInt() >= labels.length) {
+                const labels = ['5–7', '8–10', '11–16', '17–21', '22–25'];
+                final idx = value.toInt();
+                if (idx < 0 || idx >= labels.length) {
                   return const SizedBox.shrink();
                 }
 
@@ -323,7 +330,8 @@ class _AgeChart extends StatelessWidget {
                     labels[value.toInt()],
                     style: GoogleFonts.inter(
                       fontSize: 10,
-                      color: const Color(0xFF888888),
+                      fontWeight: FontWeight.w600,
+                      color: _groupColors[value.toInt()],
                     ),
                   ),
                 );
@@ -361,6 +369,7 @@ class _AgeChart extends StatelessWidget {
           _bar(1, g2.toDouble()),
           _bar(2, g3.toDouble()),
           _bar(3, g4.toDouble()),
+          _bar(4, g5.toDouble()),
         ],
       ),
     );
@@ -372,8 +381,8 @@ class _AgeChart extends StatelessWidget {
       barRods: [
         BarChartRodData(
           toY: y,
-          color: const Color(0xFFf97b06),
-          width: 24, // Thinner bars to fit 4 groups nicely
+          color: _groupColors[x],
+          width: 20,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
         ),
       ],
@@ -389,9 +398,9 @@ class _DailyLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entries = data.entries.toList();
-    final maxY =
-        (entries.map((e) => e.value).reduce((a, b) => a > b ? a : b) + 3)
-            .toDouble();
+    final maxY = entries.isNotEmpty
+        ? (entries.map((e) => e.value).reduce((a, b) => a > b ? a : b) + 3).toDouble()
+        : 3.0;
 
     return LineChart(
       LineChartData(

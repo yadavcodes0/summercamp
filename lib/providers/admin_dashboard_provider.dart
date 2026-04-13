@@ -70,9 +70,11 @@ class AdminDashboardProvider extends ChangeNotifier {
 
   List<ChildModel> _enteredChildren = [];
   Map<String, int> _branchWiseEntries = {};
+  Map<String, int> _branchWiseRegistrations = {};
 
   List<ChildModel> get enteredChildren => _enteredChildren;
   Map<String, int> get branchWiseEntries => _branchWiseEntries;
+  Map<String, int> get branchWiseRegistrations => _branchWiseRegistrations;
 
   void _updateDerivedData() {
     _isLoading = false;
@@ -88,12 +90,20 @@ class AdminDashboardProvider extends ChangeNotifier {
     final remainingChildren = totalChildren - entered.length;
 
     // ── Branch-wise entries ──
-    final branchMap = <String, int>{};
+    final branchEntryMap = <String, int>{};
     for (final c in entered) {
       final branch = c.branchName ?? 'Unknown';
-      branchMap[branch] = (branchMap[branch] ?? 0) + 1;
+      branchEntryMap[branch] = (branchEntryMap[branch] ?? 0) + 1;
     }
-    _branchWiseEntries = branchMap;
+    _branchWiseEntries = branchEntryMap;
+
+    // ── Branch-wise registrations (all children) ──
+    final branchRegMap = <String, int>{};
+    for (final c in _children) {
+      final branch = c.branchName ?? 'Unknown';
+      branchRegMap[branch] = (branchRegMap[branch] ?? 0) + 1;
+    }
+    _branchWiseRegistrations = branchRegMap;
 
     _stats = {
       'totalRegistrations': totalChildren,
